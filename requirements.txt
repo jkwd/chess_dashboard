@@ -3,3 +3,4 @@ dlt[duckdb]
 pandas
 streamlit
 jupyter
+altair

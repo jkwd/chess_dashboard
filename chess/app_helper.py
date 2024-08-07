@@ -24,9 +24,26 @@ def load_data(db, username):
             when 'threecheck' then 'lose'
         end as win_draw_lose
         , if(player_result='win', opponent_result, player_result) as reason
-        , CAST(end_time AS DATE) AS date_played_utc
-        , date_part('hour', end_time) as hour_played_utc
+        , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco
+        , replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-') as start_date
+        , regexp_extract(pgn, '(StartTime )"(.*)"', 2) as start_time
+        , cast(concat(start_date, ' ', start_time) as timestamp) as start_timestamp
+        , cast(end_time as timestamp) as end_timestamp
+        , age(end_timestamp, start_timestamp) as time_played
         , *
         from chess_data.player_games
 """).to_df()
+    return df
+
+def get_daily_win_loss(db, df):
+    df = db.sql("""
+        select 
+        start_date as date
+        , win_draw_lose as result
+        , count(1) as num_games
+        , sum(num_games) over(partition by start_date) as daily_num_games
+        , 100.0 * num_games / daily_num_games as perc
+        from df
+        group by start_date, win_draw_lose
+    """).to_df()
     return df
