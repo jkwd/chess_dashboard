@@ -60,7 +60,7 @@ prev_username = None
 username = st.sidebar.text_input("Player username", placeholder="magnuscarlsen")
 
 if username and ('username' not in st.session_state or username != st.session_state.username):
-    if 'username' not in st.session_state:
+    if 'username' not in st.session_state or username != st.session_state.username:
         st.session_state.username = username
     run_pipeline(db, username=username)
     df = load_data(db, username)
