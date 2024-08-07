@@ -10,13 +10,12 @@ db = duckdb.connect(":memory:")
 db.sql("SET TimeZone='UTC'")
 st.set_page_config(layout="wide")
 
-def side():
-    st.sidebar.title('Welcome to Chess Dashboard!')
-    # username = st.sidebar.text_input("Player username", "magnuscarlsen")
-    username = st.sidebar.text_input("Player username", "johnnywhoopp")
-    st.sidebar.button('Submit', on_click=click_button, args= [username])
-
-def row1(total_games, total_game_time, win_perc):
+def row1(df):
+    total_games= len(df)
+    num_win_games = len(df[df['player_result'] == 'win'])
+    win_perc = round(100 * num_win_games / total_games, 2)
+    total_game_time = str(df['time_played'].sum())
+    
     col1, col2, col3 = st.columns(3)
     
     col1.subheader('# Games Played')
@@ -42,40 +41,50 @@ def row2(df):
               )
           )
     
-    c2 = (alt.Chart(df)
-          .mark_bar()
-          .encode(
-              x='date',
-              y='perc',
-              color=alt.Color('result', scale=alt.Scale(domain=domain, range=color_range))
-              .legend(orient="bottom")
-              )
-          )
+    # c2 = (alt.Chart(df)
+    #       .mark_bar()
+    #       .encode(
+    #           x='date',
+    #           y='perc',
+    #           color=alt.Color('result', scale=alt.Scale(domain=domain, range=color_range))
+    #           .legend(orient="bottom")
+    #           )
+    #       )
 
     st.header("Daily win/draw/lose results")
-    col1, col2 = st.columns(2)
     
-    col1.altair_chart(c1, use_container_width=True)
-    col2.altair_chart(c2, use_container_width=True)
+    st.altair_chart(c1, use_container_width=True)
 
-def click_button(username):
-    st.title(f'Chess Dashboard for {username}')
-    
+st.sidebar.title('Welcome to Chess Dashboard!')
+prev_username = None
+username = st.sidebar.text_input("Player username", placeholder="magnuscarlsen")
+
+if username and ('username' not in st.session_state or username != st.session_state.username):
+    if 'username' not in st.session_state:
+        st.session_state.username = username
     run_pipeline(db, username=username)
     df = load_data(db, username)
     
-    # Row 1
-    total_games= len(df)
-    num_win_games = len(df[df['player_result'] == 'win'])
-    win_perc = round(100 * num_win_games / total_games, 2)
-    total_game_time = str(df['time_played'].sum())
+    st.session_state.df = df
 
-    row1(total_games, total_game_time, win_perc)
+if 'df' in st.session_state:
+    df = st.session_state.df
+    filter_start_date = df['start_date'].min().to_pydatetime()
+    filter_end_date = df['start_date'].max().to_pydatetime()
     
-    # Row 2
-    df_daily_win_draw_lose = get_daily_win_loss(db, df)
+    start_date, end_date = st.sidebar.slider(
+        'Select a date range',
+        value=(filter_start_date, filter_end_date),
+        format='YYYY-MM-DD'
+    )
+    
+    df_filtered = df[(df['start_date'] >= start_date) & (df['start_date'] <= end_date)]
+    
+    # Row 1 - Big numbers
+    row1(df_filtered)
+
+    # Row 2 - Daily win lose draw
+    df_daily_win_draw_lose = get_daily_win_loss(db, df_filtered)
     row2(df_daily_win_draw_lose)
 
-side()
-    
-
+    # Row 3 - 

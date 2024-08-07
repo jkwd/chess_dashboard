@@ -2,6 +2,10 @@ def load_data(db, username):
     df = db.sql(f"""
     select
         if(lower(white__username)='{username}', 'White', 'Black') as player_color
+        , case player_color
+            when 'White' then if(white__rating > black__rating, True, False)
+            else if(black__rating > white__rating, True, False)
+        end is_weaker_opponent
         , if(player_color = 'White', white__result, black__result) as player_result
         , if(player_color = 'White', black__result, white__result) as opponent_result
         , case player_result
@@ -25,11 +29,12 @@ def load_data(db, username):
         end as win_draw_lose
         , if(player_result='win', opponent_result, player_result) as reason
         , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco
-        , replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-') as start_date
+        , cast(replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-') as date) as start_date
         , regexp_extract(pgn, '(StartTime )"(.*)"', 2) as start_time
         , cast(concat(start_date, ' ', start_time) as timestamp) as start_timestamp
         , cast(end_time as timestamp) as end_timestamp
         , age(end_timestamp, start_timestamp) as time_played
+        , epoch(time_played) as time_played_seconds
         , *
         from chess_data.player_games
 """).to_df()
