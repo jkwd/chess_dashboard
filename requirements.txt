@@ -1,6 +1,7 @@
 duckdb
 dlt[duckdb]
+dbt-duckdb
 pandas
 streamlit
-jupyter
 altair
+jupyter

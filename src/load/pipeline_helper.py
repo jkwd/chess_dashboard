@@ -3,7 +3,7 @@
 from dlt.common.typing import StrAny
 from dlt.sources.helpers import requests
 
-from settings import OFFICIAL_CHESS_API_URL
+from load.settings import OFFICIAL_CHESS_API_URL
 
 
 def get_url_with_retry(url: str) -> StrAny:

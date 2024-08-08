@@ -1,12 +1,14 @@
 import pandas as pd
 import duckdb
-from chess_pipeline import run_pipeline
 import streamlit as st
 import altair as alt
 
-from app_helper import load_data, get_daily_win_loss, wdl_by_color
+from load.load_chess_data import run_pipeline
+from src.streamlit.app_helper import prep_player_games, create_game_moves_table, get_game_moves, get_daily_win_loss, wdl_by_color
 
-db = duckdb.connect(":memory:")
+from dbt.cli.main import dbtRunner, dbtRunnerResult
+
+db = duckdb.connect("chess.duckdb")
 db.sql("SET TimeZone='UTC'")
 st.set_page_config(layout="wide")
 
@@ -107,38 +109,63 @@ def row3(df):
     col2.subheader('% Win/Draw/Loss by color')
     col2.altair_chart(bar2+text2, use_container_width=True)
 
-st.sidebar.title('Welcome to Chess Dashboard!')
-prev_username = None
-username = st.sidebar.text_input("Player username", placeholder="magnuscarlsen")
+def run():
+    st.sidebar.title('Welcome to Chess Dashboard!')
+    username = st.sidebar.text_input("Player username", placeholder="magnuscarlsen")
 
-if username and ('username' not in st.session_state or username != st.session_state.username):
-    if 'username' not in st.session_state or username != st.session_state.username:
-        st.session_state.username = username
-    run_pipeline(db, username=username)
-    df = load_data(db, username)
-    
-    st.session_state.df = df # Save to session for filters
+    if username and ('username' not in st.session_state or username != st.session_state.username):
+        if 'username' not in st.session_state or username != st.session_state.username:
+            st.session_state.username = username
+        run_pipeline(db, username=username)
+        
+        print(db.sql("select * from information_schema.tables"))
+        
+        df = prep_player_games(db, username)
+        st.session_state.df = df # Save to session for filters
+        
+        create_game_moves_table(db, df)
+        df_game_moves = get_game_moves(db)
+        st.session_state.df_game_moves = df_game_moves # Save to session for filters
+        
+        # initialize
+        dbt = dbtRunner()
 
-if 'df' in st.session_state:
-    df = st.session_state.df
-    filter_start_date = df['start_date'].min().to_pydatetime()
-    filter_end_date = df['start_date'].max().to_pydatetime()
-    
-    start_date, end_date = st.sidebar.slider(
-        'Select a date range',
-        value=(filter_start_date, filter_end_date),
-        format='YYYY-MM-DD'
-    )
-    
-    df_filtered = df[(df['start_date'] >= start_date) & (df['start_date'] <= end_date)]
-    
-    # Row 1 - Big numbers
-    row1(df_filtered)
+        # create CLI args as a list of strings
+        cli_args = ["run", "--project-dir", "src/transform", "--profiles-dir", "src/transform/profiles"]
 
-    # Row 2 - Daily win lose draw
-    df_daily_win_draw_lose = get_daily_win_loss(db, df_filtered)
-    row2(df_daily_win_draw_lose)
+        # run the command
+        res: dbtRunnerResult = dbt.invoke(cli_args)
 
-    # Row 3 - Win by color
-    df_color_wdl = wdl_by_color(db, df_filtered)
-    row3(df_color_wdl)
+        # inspect the results
+        for r in res.result:
+            print(f"{r.node.name}: {r.status}")
+        
+        print(db.sql("select * from information_schema.tables"))
+    if 'df' in st.session_state:
+        df = st.session_state.df
+        df_game_moves = st.session_state.df_game_moves
+        
+        filter_start_date = df['start_date'].min().to_pydatetime()
+        filter_end_date = df['start_date'].max().to_pydatetime()
+        
+        start_date, end_date = st.sidebar.slider(
+            'Select a date range',
+            value=(filter_start_date, filter_end_date),
+            format='YYYY-MM-DD'
+        )
+        
+        df_filtered = df[(df['start_date'] >= start_date) & (df['start_date'] <= end_date)]
+        
+        # Row 1 - Big numbers
+        row1(df_filtered)
+
+        # Row 2 - Daily win lose draw
+        df_daily_win_draw_lose = get_daily_win_loss(db, df_filtered)
+        row2(df_daily_win_draw_lose)
+
+        # Row 3 - Win by color
+        df_color_wdl = wdl_by_color(db, df_filtered)
+        row3(df_color_wdl)
+
+if __name__ == "__main__":
+    run()
