@@ -1,0 +1,9 @@
+
+version: 2
+
+sources:
+  - name: chess_source
+    database: chess
+    schema: chess_data_raw
+    tables:
+      - name: player_games
