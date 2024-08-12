@@ -2,6 +2,7 @@ import pandas as pd
 import duckdb
 import streamlit as st
 import altair as alt
+from datetime import datetime
 
 from load.load_chess_data import run_pipeline
 from src.streamlit.app_helper import prep_player_games, create_game_moves_table, get_game_moves, get_daily_win_loss, wdl_by_color
@@ -148,12 +149,24 @@ def run():
         filter_start_date = df['start_date'].min().to_pydatetime()
         filter_end_date = df['start_date'].max().to_pydatetime()
         
-        start_date, end_date = st.sidebar.slider(
-            'Select a date range',
-            value=(filter_start_date, filter_end_date),
-            format='YYYY-MM-DD'
+        start_date = st.sidebar.date_input(
+            "Filter Start Date",
+            filter_start_date,
+            filter_start_date,
+            filter_end_date,
+            format="YYYY-MM-DD"
         )
         
+        end_date = st.sidebar.date_input(
+            "Filter End Date",
+            filter_end_date,
+            filter_start_date,
+            filter_end_date,
+            format="YYYY-MM-DD"
+        )
+        
+        start_date = datetime.combine(start_date, datetime.min.time())
+        end_date = datetime.combine(end_date, datetime.min.time())
         df_filtered = df[(df['start_date'] >= start_date) & (df['start_date'] <= end_date)]
         
         # Row 1 - Big numbers
