@@ -1,4 +1,3 @@
-import pandas as pd
 import duckdb
 import streamlit as st
 import altair as alt
@@ -113,13 +112,14 @@ def row3(df):
 def run():
     st.sidebar.title('Welcome to Chess Dashboard!')
     username = st.sidebar.text_input("Player username", placeholder="magnuscarlsen")
-
+    
     if username and ('username' not in st.session_state or username != st.session_state.username):
         if 'username' not in st.session_state or username != st.session_state.username:
             st.session_state.username = username
         run_pipeline(db, username=username)
         
         print(db.sql("select * from information_schema.tables"))
+        print(db.sql("select * from chess_data_raw.player_games ").to_df().info())
         
         df = prep_player_games(db, username)
         st.session_state.df = df # Save to session for filters
@@ -132,7 +132,7 @@ def run():
         dbt = dbtRunner()
 
         # create CLI args as a list of strings
-        cli_args = ["run", "--project-dir", "src/transform", "--profiles-dir", "src/transform/profiles"]
+        cli_args = ["run", "--project-dir", "src/transform", "--profiles-dir", "src/transform/profiles", "--vars", f"{{'username': {username}}}"]
 
         # run the command
         res: dbtRunnerResult = dbt.invoke(cli_args)
