@@ -3,14 +3,17 @@ from dagster_embedded_elt.dlt import DagsterDltResource, dlt_assets
 from dlt import pipeline, destinations
 from dlt_sources.chess import source
 
+import os
 from . import constants
 
 # https://docs.dagster.io/integrations/embedded-elt/dlt
 
+username = os.getenv("USERNAME")
+
 @dlt_assets(
     dlt_source=source(
         # players=['johnnywhoopp'], start_month="2022/11", end_month="2022/12"
-        players=['johnnywhoopp']
+        players=[username]
     ),
     dlt_pipeline = pipeline(
         pipeline_name="chess_pipeline",
