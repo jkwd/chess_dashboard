@@ -6,9 +6,10 @@ setup(
     install_requires=[
         "dagster",
         "duckdb",
-        "pandas",
         "dagster-embedded-elt",
+        "dagster-duckdb-pandas",
+        "dagster-duckdb",
         "dlt[duckdb]",
     ],
-    extras_require={"dev": ["dagster-webserver", "pytest"]},
+    extras_require={"dev": ["dagster-webserver", "pytest", "jupyter"]},
 )

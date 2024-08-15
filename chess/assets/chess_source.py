@@ -1,9 +1,8 @@
-from dagster import AssetExecutionContext, Definitions
+from dagster import AssetExecutionContext
 from dagster_embedded_elt.dlt import DagsterDltResource, dlt_assets
 from dlt import pipeline, destinations
 from dlt_sources.chess import source
 
-import duckdb
 from . import constants
 
 # https://docs.dagster.io/integrations/embedded-elt/dlt
@@ -19,7 +18,7 @@ from . import constants
         dataset_name="chess_data_raw",
     ),
     name="chess",
-    group_name="chess",
+    group_name="ingestion",
 )
 def dagster_chess_assets(context: AssetExecutionContext, dlt: DagsterDltResource):
     yield from dlt.run(context=context)

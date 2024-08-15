@@ -10,8 +10,8 @@ venv: clean
 	. $(VENV)/bin/activate
 	$(PIP) install -e ".[dev]"
 	@echo "Virtual environment created and packages installed."
-	@which python
-	@which dagster
+	which python
+	which dagster
 
 up: $(VENV)/bin/activate
 	dagster dev
@@ -21,3 +21,6 @@ test: $(VENV)/bin/activate
 
 clean:
 	rm -rf $(VENV)
+
+jupyter:
+	jupyter notebook
