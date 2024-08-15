@@ -1,13 +1,15 @@
 from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
+from . import constants
 
 import os
 import pandas as pd
 from io import StringIO
 import chess
 import chess.pgn
+import chess.engine
 
-username = os.getenv("USERNAME")
+username: str = os.getenv("USERNAME")
 
 dlt_chess_players_games = AssetSpec(AssetKey("dlt_chess_players_games"))
 
@@ -97,7 +99,7 @@ def player_games(duckdb: DuckDBResource):
 
 @asset(deps=[dlt_chess_players_games], group_name="prep")
 def player_game_moves(duckdb: DuckDBResource):
-    def _get_game_fens(game_move_index, pgn_string):
+    def _get_game_fens(game_move_index: int, pgn_string: str) -> str:
         pgn_parsed = StringIO(pgn_string)
         game = chess.pgn.read_game(pgn_parsed)
         board = game.board()
@@ -111,9 +113,18 @@ def player_game_moves(duckdb: DuckDBResource):
         
         return board.fen()
     
+    def _calculate_centipawn(fen: str) -> str:
+        board = chess.Board(fen=fen)
+        engine = chess.engine.SimpleEngine.popen_uci(constants.STOCKFISH_PATH)
+        result = engine.analyse(board, chess.engine.Limit(time=0.1))
+        engine.close()
+        
+        return result['score']
+        
+    
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
-        df = conn.sql("""
+        df: pd.DataFrame = conn.sql("""
                 with player_games as (
                     select
                     uuid
@@ -173,6 +184,7 @@ def player_game_moves(duckdb: DuckDBResource):
         """).to_df()
         
         df['game_move_fen'] = df[['game_move_index', 'pgn']].apply(lambda x: _get_game_fens(x['game_move_index'], x['pgn']), axis=1)
+        df['centipawn'] = df['game_move_fen'].apply(_calculate_centipawn)
         
         conn.sql("""
             CREATE SCHEMA IF NOT EXISTS chess_data_prep;

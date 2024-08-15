@@ -8,7 +8,7 @@ from . import constants
 
 # https://docs.dagster.io/integrations/embedded-elt/dlt
 
-username = os.getenv("USERNAME")
+username: str = os.getenv("USERNAME")
 
 @dlt_assets(
     dlt_source=source(
