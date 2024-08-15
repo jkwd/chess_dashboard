@@ -1,4 +1,4 @@
-from chess.definitions import defs
+from chess_etl.definitions import defs
 
 
 def test_def_can_load():

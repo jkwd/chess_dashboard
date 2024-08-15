@@ -75,7 +75,7 @@ def players_archives(players: List[str]) -> Iterator[List[TDataItem]]:
 
 
 @dlt.resource(
-    write_disposition="append", columns={"end_time": {"data_type": "timestamp"}}
+    write_disposition="replace", columns={"end_time": {"data_type": "timestamp"}}
 )
 def players_games(
     players: List[str], start_month: str = None, end_month: str = None
@@ -126,7 +126,7 @@ def players_games(
         yield _get_archive(url)
 
 
-@dlt.resource(write_disposition="append")
+@dlt.resource(write_disposition="replace")
 def players_online_status(players: List[str]) -> Iterator[TDataItem]:
     """
     Returns current online status for a list of players.

@@ -1,5 +1,5 @@
 import dlt
-from chess import source
+from chess_etl import source
 
 
 def load_players_games_example(start_month: str, end_month: str) -> None:
