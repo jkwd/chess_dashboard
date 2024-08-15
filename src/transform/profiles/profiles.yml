@@ -1,7 +1,0 @@
-transform:
-  outputs:
-    dev:
-      type: duckdb
-      path: chess.duckdb
-      schema: chess_data
-  target: dev

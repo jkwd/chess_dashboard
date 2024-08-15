@@ -8,25 +8,30 @@ from dlt.common.typing import TDataItem
 from dlt.sources import DltResource
 from dlt.sources.helpers import requests
 
-from load.pipeline_helper import get_path_with_retry, get_url_with_retry
+from .helpers import get_path_with_retry, get_url_with_retry, validate_month_string
+from .settings import UNOFFICIAL_CHESS_API_URL
+
 
 @dlt.source(name="chess")
-def source(username: str) -> Sequence[DltResource]:
+def source(
+    players: List[str], start_month: str = None, end_month: str = None
+) -> Sequence[DltResource]:
     """
     A dlt source for the chess.com api. It groups several resources (in this case chess.com API endpoints) containing
     various types of data: user profiles or chess match results
     Args:
-        username (str): Username for which to get the data.
+        players (List[str]): A list of the player usernames for which to get the data.
         start_month (str, optional): Filters out all the matches happening before `start_month`. Defaults to None.
         end_month (str, optional): Filters out all the matches happening after `end_month`. Defaults to None.
     Returns:
-        Sequence[DltResource]: A sequence of resources that can be selected from including player_profile,
-        player_archives, player_games
+        Sequence[DltResource]: A sequence of resources that can be selected from including players_profiles,
+        players_archives, players_games, players_online_status
     """
     return (
-        player_profile(username),
-        player_archives(username),
-        player_games(username),
+        players_profiles(players),
+        players_archives(players),
+        players_games(players, start_month=start_month, end_month=end_month),
+        # players_online_status(players),
     )
 
 
@@ -37,13 +42,13 @@ def source(username: str) -> Sequence[DltResource]:
         "joined": {"data_type": "timestamp"},
     },
 )
-def player_profile(username: str) -> TDataItem:
+def players_profiles(players: List[str]) -> Iterator[TDataItem]:
     """
-    Yields player profile.
+    Yields player profiles for a list of player usernames.
     Args:
-        username (str): Username to retrieve profiles for.
+        players (List[str]): List of player usernames to retrieve profiles for.
     Yields:
-        TDataItem: Player profiles data.
+        Iterator[TDataItem]: An iterator over player profiles data.
     """
 
     # get archives in parallel by decorating the http request with defer
@@ -51,27 +56,30 @@ def player_profile(username: str) -> TDataItem:
     def _get_profile(username: str) -> TDataItem:
         return get_path_with_retry(f"player/{username}")
 
-
-    yield _get_profile(username)
+    for username in players:
+        yield _get_profile(username)
 
 
 @dlt.resource(write_disposition="replace", selected=False)
-def player_archives(username: str) -> Iterator[List[TDataItem]]:
+def players_archives(players: List[str]) -> Iterator[List[TDataItem]]:
     """
-    Yields url to game archives for specified username.
+    Yields url to game archives for specified players.
     Args:
-        players (str): Username to retrieve archives for.
+        players (List[str]): List of player usernames to retrieve archives for.
     Yields:
         Iterator[List[TDataItem]]: An iterator over list of player archive data.
     """
-    data = get_path_with_retry(f"player/{username}/games/archives")
-    yield data.get("archives", [])
+    for username in players:
+        data = get_path_with_retry(f"player/{username}/games/archives")
+        yield data.get("archives", [])
 
 
 @dlt.resource(
-    write_disposition="replace", columns={"end_time": {"data_type": "timestamp"}}
+    write_disposition="append", columns={"end_time": {"data_type": "timestamp"}}
 )
-def player_games(username: str) -> Iterator[Callable[[], List[TDataItem]]]:
+def players_games(
+    players: List[str], start_month: str = None, end_month: str = None
+) -> Iterator[Callable[[], List[TDataItem]]]:
     """
     Yields `players` games that happened between `start_month` and `end_month`.
     Args:
@@ -80,12 +88,15 @@ def player_games(username: str) -> Iterator[Callable[[], List[TDataItem]]]:
         end_month (str, optional): The ending month in the format "YYYY/MM". Defaults to None.
     Yields:
         Iterator[Callable[[], List[TDataItem]]]: An iterator over callables that return a list of games for each player.
-    """
+    """  # do a simple validation to prevent common mistakes in month format
+    validate_month_string(start_month)
+    validate_month_string(end_month)
+
     # get a list of already checked archives
     # from your point of view, the state is python dictionary that will have the same content the next time this function is called
     checked_archives = dlt.current.resource_state().setdefault("archives", [])
     # get player archives, note that you can call the resource like any other function and just iterate it like a list
-    archives = player_archives(username)
+    archives = players_archives(players)
 
     # get archives in parallel by decorating the http request with defer
     @dlt.defer
@@ -103,6 +114,10 @@ def player_games(username: str) -> Iterator[Callable[[], List[TDataItem]]]:
     # enumerate the archives
     for url in archives:
         # the `url` format is https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+        if start_month and url[-7:] < start_month:
+            continue
+        if end_month and url[-7:] > end_month:
+            continue
         # do not download archive again
         if url in checked_archives:
             continue
@@ -111,15 +126,22 @@ def player_games(username: str) -> Iterator[Callable[[], List[TDataItem]]]:
         yield _get_archive(url)
 
 
-def run_pipeline(db, username):
-    pipeline = dlt.pipeline(
-        pipeline_name="chess_pipeline", # Use a custom name if desired
-        destination=dlt.destinations.duckdb(db),
-        dataset_name="chess_data_raw", # Use a custom name if desired
-    )
-
-    data = source(username)
-
-    info = pipeline.run(data)
-    # print the information on data that was loaded
-    print(info)
+@dlt.resource(write_disposition="append")
+def players_online_status(players: List[str]) -> Iterator[TDataItem]:
+    """
+    Returns current online status for a list of players.
+    Args:
+        players (List[str]): List of player usernames to check online status for.
+    Yields:
+        Iterator[TDataItem]: An iterator over the online status of each player.
+    """
+    # we'll use unofficial endpoint to get online status, the official seems to be removed
+    for player in players:
+        status = get_url_with_retry(f"{UNOFFICIAL_CHESS_API_URL}user/popup/{player}")
+        # return just relevant selection
+        yield {
+            "username": player,
+            "onlineStatus": status["onlineStatus"],
+            "lastLoginDate": status["lastLoginDate"],
+            "check_time": pendulum.now(),  # dlt can deal with native python dates
+        }

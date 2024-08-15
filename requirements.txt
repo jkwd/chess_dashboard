@@ -1,7 +1,0 @@
-duckdb
-dlt[duckdb]
-dbt-duckdb
-pandas
-streamlit
-altair
-jupyter
