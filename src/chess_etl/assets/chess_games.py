@@ -2,6 +2,7 @@ from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
 from . import constants
 
+import asyncio
 import os
 import pandas as pd
 from io import StringIO
@@ -98,7 +99,7 @@ def player_games(duckdb: DuckDBResource):
 
 
 @asset(deps=[dlt_chess_players_games], group_name="prep")
-def player_game_moves(duckdb: DuckDBResource):
+async def player_game_moves(duckdb: DuckDBResource):
     def _get_game_fens(game_move_index: int, pgn_string: str) -> str:
         pgn_parsed = StringIO(pgn_string)
         game = chess.pgn.read_game(pgn_parsed)
@@ -120,7 +121,43 @@ def player_game_moves(duckdb: DuckDBResource):
         engine.close()
         
         return result['score']
+    
+    async def evaluate_board(engine, board):
+        try:
+            result = await engine.analyse(board, chess.engine.Limit(time=0.1))
+        except Exception as e:
+            return "ERROR"
+        return result['score']
+
+    async def evaluate_pgn_async(uuid, pgn_string):
+        pgn_parsed = StringIO(pgn_string)
+        game = chess.pgn.read_game(pgn_parsed)
+        board = game.board()
         
+        tasks = []
+        move_index = 1
+        
+        try:
+            transport, engine = await chess.engine.popen_uci(constants.STOCKFISH_PATH)
+            # Create tasks for each move
+            for move in game.mainline_moves():
+                board.push(move)
+                task = asyncio.create_task(evaluate_board(engine, board))
+                tasks.append((task, move_index))
+                move_index += 1
+
+            # Gather results
+            results = []
+            for task, index in tasks:
+                centipawn_score = await task
+                results.append([uuid, index, centipawn_score])
+        
+            await engine.close()
+        except Exception as e:
+            results.append([uuid, index, "ERROR"])
+        
+        # Convert results to DataFrame
+        return results
     
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
@@ -131,6 +168,7 @@ def player_game_moves(duckdb: DuckDBResource):
                     , time_control
                     , pgn
                     from chess_data_raw.players_games
+                    where uuid = '0382938d-05f5-11ef-9338-b21a8d01000f'
                 )
                 , base as (
                     select
@@ -183,12 +221,32 @@ def player_game_moves(duckdb: DuckDBResource):
                 select * from final
         """).to_df()
         
-        df['game_move_fen'] = df[['game_move_index', 'pgn']].apply(lambda x: _get_game_fens(x['game_move_index'], x['pgn']), axis=1)
-        df['centipawn'] = df['game_move_fen'].apply(_calculate_centipawn)
-        
         conn.sql("""
-            CREATE SCHEMA IF NOT EXISTS chess_data_prep;
-            CREATE OR REPLACE TABLE chess_data_prep.player_game_moves as (
-                select * from df
-            )
-        """)
+                 CREATE SCHEMA IF NOT EXISTS chess_data_prep;
+                 CREATE OR REPLACE TABLE chess_data_prep.player_game_moves as (
+                    select * from df
+                 );
+                 """)
+        
+        # df['game_move_fen'] = df[['game_move_index', 'pgn']].apply(lambda x: _get_game_fens(x['game_move_index'], x['pgn']), axis=1)
+        # df['centipawn'] = df['game_move_fen'].apply(_calculate_centipawn)
+        
+        # centipawn_lst = []
+        # for uuid, pgn in df[['uuid', 'pgn']].values.tolist():
+        #     res = await evaluate_pgn_async(uuid=uuid, pgn_string=pgn)            
+        #     centipawn_lst.extend(res)
+        
+        # centipawn_df = pd.DataFrame(centipawn_lst, columns=['uuid', 'game_move_index', 'centipawn_score'])            
+        
+        # conn.sql("""
+        #     CREATE SCHEMA IF NOT EXISTS chess_data_prep;
+        #     CREATE OR REPLACE TABLE chess_data_prep.player_game_moves as (
+        #         select
+        #         df.*
+        #         , centipawn_score
+        #         from df
+        #         left join centipawn_df as c_df
+        #         on df.uuid = c_df.uuid
+        #         and df.game_move_index = c_df.game_move_index
+        #     )
+        # """)

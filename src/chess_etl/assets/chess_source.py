@@ -1,7 +1,7 @@
 from dagster import AssetExecutionContext
 from dagster_embedded_elt.dlt import DagsterDltResource, dlt_assets
 from dlt import pipeline, destinations
-from dlt_sources.chess import source
+from src.dlt_sources.chess import source
 
 import os
 from . import constants

@@ -4,8 +4,8 @@ from dagster import (
     define_asset_job,
     load_assets_from_modules
 )
-from .assets import chess_source, chess_games
-from .resources import dlt_resource, duckdb_resource
+from src.chess_etl.assets import chess_source, chess_games
+from src.chess_etl.resources import dlt_resource, duckdb_resource
 
 daily_refresh_schedule = ScheduleDefinition(
     job=define_asset_job(name="all_assets_job"), cron_schedule="0 0 * * *"
