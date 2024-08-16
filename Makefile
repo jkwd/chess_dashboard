@@ -17,7 +17,7 @@ up: $(VENV)/bin/activate
 	dagster dev
 
 test: $(VENV)/bin/activate
-	pytest chess_tests
+	pytest chess_etl_tests
 
 clean:
 	rm -rf $(VENV)
