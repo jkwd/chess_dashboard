@@ -123,7 +123,6 @@ def game_moves(duckdb: DuckDBResource):
                     , time_control
                     , pgn
                     from chess_data_raw.players_games
-                    where uuid = '0382938d-05f5-11ef-9338-b21a8d01000f'
                 )
                 , base as (
                     select
