@@ -11,6 +11,7 @@ setup(
         "dagster-duckdb==0.24.0",
         "dlt[duckdb]==0.5.3",
         "python-chess==1.2.0",
+        "dagster-webserver==1.8.0",
     ],
-    extras_require={"dev": ["dagster-webserver==1.8.0", "pytest==8.3.2", "jupyter==1.0.0"]},
+    extras_require={"dev": ["pytest==8.3.2", "jupyter==1.0.0"]},
 )

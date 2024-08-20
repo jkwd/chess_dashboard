@@ -166,3 +166,7 @@ cython_debug/
 
 # Data
 chess.duckdb
+superset.db
+
+# Superset config
+superset_config.py
