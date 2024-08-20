@@ -29,31 +29,3 @@ username: str = os.getenv("USERNAME")
 )
 def dagster_chess_assets(context: AssetExecutionContext, dlt: DagsterDltResource):
     yield from dlt.run(context=context)
-
-
-# https://docs.dagster.io/concepts/assets/asset-checks/define-execute-asset-checks
-source_check_blobs = [
-    {
-        "name": "uuid_has_no_nulls",
-        "asset": "dlt_chess_players_games",
-        "sql": """
-            select * 
-            from chess_data_raw.players_games 
-            where uuid is null
-        """,
-    },
-    {
-        "name": "uuid_is_unique",
-        "asset": "dlt_chess_players_games",
-        "sql": """
-            select
-            uuid
-            , count(1) as cnt
-            from chess_data_raw.players_games 
-            group by uuid
-            having count(1) > 1
-        """,
-    },
-]
-
-
