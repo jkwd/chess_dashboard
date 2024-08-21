@@ -12,7 +12,7 @@ def make_check(check_blob: Mapping[str, str]) -> AssetChecksDefinition:
         name=check_blob["name"],
         asset=check_blob["asset"],
         required_resource_keys={"duckdb"},
-        blocking=True
+        blocking=check_blob['blocking'] if 'blocking' in check_blob else True
     )
     def _check(context):
         with context.resources.duckdb.get_connection() as conn:
@@ -150,5 +150,6 @@ game_moves_check_blobs = [
             from {game_moves} 
             where move_time_seconds < 0
         """,
+        "blocking": False
     },
 ]

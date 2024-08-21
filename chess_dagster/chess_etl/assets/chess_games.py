@@ -116,6 +116,7 @@ def game_moves(duckdb: DuckDBResource):
                 select * from df
             )
         """)
+    conn.close()
 
 @asset(deps=[game_moves], group_name="core")
 def player_games(duckdb: DuckDBResource):
@@ -127,7 +128,7 @@ def player_games(duckdb: DuckDBResource):
                 with game_moves_pivot as (
                     PIVOT chess_data_prep.game_moves
                     ON color_move
-                    USING sum(move_time) as total_move_time, sum(1) as num_moves
+                    USING sum(move_time_seconds) as total_move_time, count(1) as num_moves
                     group by uuid
                 )
                 , game_moves as (
@@ -229,7 +230,7 @@ def player_games(duckdb: DuckDBResource):
                 select * from final
             );
         """)
-
+    conn.close()
         
 # @asset(deps=[game_moves], group_name="prep")
 # def game_moves_centipawn(duckdb: DuckDBResource):
