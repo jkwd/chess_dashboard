@@ -110,6 +110,18 @@ source_check_blobs = [
 
 game_moves_check_blobs = [
     {
+        "name": "uuid_game_move_index__is_unique",
+        "asset": game_moves_asset,
+        "sql": f"""
+            select
+            concat(uuid, '_', game_move_index::string) as id
+            , count(1) as cnt
+            from {game_moves}
+            group by 1
+            having count(1) > 1
+        """,
+    },
+    {
         "name": "color_move_index__has_no_nulls",
         "asset": game_moves_asset,
         "sql": f"""
