@@ -11,12 +11,15 @@ daily_refresh_schedule = ScheduleDefinition(
     job=define_asset_job(name="all_assets_job"), cron_schedule="0 0 * * *"
 )
 
+# Asset
+chess_source_assets = load_assets_from_modules([chess_source])
+chess_games_assets = load_assets_from_modules([chess_games])
+
 # Asset Checks
 asset_check_blobs = []
 asset_check_blobs.extend(asset_checks.source_check_blobs)
+asset_check_blobs.extend(asset_checks.game_moves_check_blobs)
 
-chess_source_assets = load_assets_from_modules([chess_source])
-chess_games_assets = load_assets_from_modules([chess_games])
 
 # Must be last
 defs = Definitions(

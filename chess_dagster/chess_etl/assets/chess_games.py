@@ -43,8 +43,8 @@ def game_moves(duckdb: DuckDBResource):
                     select
                     uuid
                     , time_control
-                    , cast(split(time_control, '+')[1] as integer) as time_control_start
-                    , cast(coalesce(split(time_control, '+')[2], '0') as integer) as time_control_add
+                    , cast(split(time_control, '+')[1] as integer) as time_control_base
+                    , cast(coalesce(split(time_control, '+')[2], '0') as integer) as time_control_add_seconds
                     , pgn
                     , split(pgn, '\n\n')[2] as pgn_moves
                     , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+ {\[%clk \S+\]}') as moves_extract
@@ -55,16 +55,20 @@ def game_moves(duckdb: DuckDBResource):
                     uuid
                     , pgn
                     , time_control
-                    , time_control_start
-                    , time_control_add
+                    , time_control_base
+                    , time_control_add_seconds
                     , unnest(moves_extract) as moves_unnest
                     , generate_subscripts(moves_extract, 1) AS game_move_index
                     , split(moves_unnest, ' ')[1] as color_move_index_raw
                     , cast(regexp_replace(color_move_index_raw, '\.+', '') as int) as color_move_index
                     , if(regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White') as color_move
                     , split(moves_unnest, ' ')[2] as move
-                    , cast(replace(split(moves_unnest, ' ')[4], ']}', '') as interval) as clock_interval
-                    , to_seconds(epoch(clock_interval) + time_control_add) as clock_interval_post_move
+
+                    -- This is the clock after the addition of time
+                    , epoch(cast(replace(split(moves_unnest, ' ')[4], ']}', '') as interval)) as clock_interval_post_move
+
+                    -- To get the clock before the addition of time
+                    , clock_interval_post_move - time_control_add_seconds as clock_interval_move
                     from base
                 )
                 , final as (
@@ -72,22 +76,36 @@ def game_moves(duckdb: DuckDBResource):
                     uuid
                     , pgn
                     , time_control
-                    , time_control_add
-                    , time_control_start
+                    , time_control_base
+                    , time_control_add_seconds
                     , game_move_index
                     , color_move
                     , color_move_index
                     , move
-                    , clock_interval
-                    , clock_interval_post_move
                     , coalesce(
                         lag(clock_interval_post_move) over(partition by uuid, color_move order by color_move_index)
-                        , to_seconds(time_control_start)
+                        , time_control_base
                     )  as prev_clock_interval
-                    , epoch(prev_clock_interval) - epoch(clock_interval)as move_time
+                    , clock_interval_move
+                    , clock_interval_post_move
+                    , prev_clock_interval - clock_interval_move as move_time_seconds
                     from unnest
                 )
-                select * from final
+                select
+                uuid::string as uuid
+                , pgn::string as pgn
+                , time_control::string as time_control
+                , time_control_base::int as time_control_base
+                , time_control_add_seconds::int as time_control_add_seconds
+                , game_move_index::int as game_move_index
+                , color_move::string as color_move
+                , color_move_index::int as color_move_index
+                , move::string as move
+                , prev_clock_interval::double as prev_clock_interval
+                , clock_interval_move::double as clock_interval_move
+                , clock_interval_post_move::double as clock_interval_post_move
+                , move_time_seconds::double as move_time_seconds
+                from final
         """).to_df()
         
         # df['game_move_fen'] = df[['game_move_index', 'pgn']].apply(lambda x: _get_game_fens(x['game_move_index'], x['pgn']), axis=1)

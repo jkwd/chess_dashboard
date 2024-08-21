@@ -24,10 +24,18 @@ def make_check(check_blob: Mapping[str, str]) -> AssetChecksDefinition:
     return _check
 
 players_games_raw = 'chess_data_raw.players_games'
+players_games_raw_asset = 'dlt_chess_players_games'
+
+game_moves = 'chess_data_prep.game_moves'
+game_moves_asset = 'game_moves'
+
+player_games_core = 'chess_data_core.player_games'
+player_games_core_asset = 'player_games'
+
 source_check_blobs = [
     {
-        "name": "uuid_has_no_nulls",
-        "asset": "dlt_chess_players_games",
+        "name": "uuid__has_no_nulls",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select * 
             from {players_games_raw} 
@@ -36,8 +44,8 @@ source_check_blobs = [
         """,
     },
     {
-        "name": "uuid_is_unique",
-        "asset": "dlt_chess_players_games",
+        "name": "uuid__is_unique",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select
             uuid
@@ -48,8 +56,8 @@ source_check_blobs = [
         """,
     },
     {
-        "name": "time_control_has_no_nulls",
-        "asset": "dlt_chess_players_games",
+        "name": "time_control__has_no_nulls",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select * 
             from {players_games_raw} 
@@ -58,8 +66,8 @@ source_check_blobs = [
         """,
     },
     {
-        "name": "white__username_has_no_nulls",
-        "asset": "dlt_chess_players_games",
+        "name": "white__username__has_no_nulls",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select * 
             from {players_games_raw} 
@@ -68,8 +76,8 @@ source_check_blobs = [
         """,
     },
     {
-        "name": "black__username_has_no_nulls",
-        "asset": "dlt_chess_players_games",
+        "name": "black__username__has_no_nulls",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select * 
             from {players_games_raw} 
@@ -78,8 +86,8 @@ source_check_blobs = [
         """,
     },
     {
-        "name": "white__resulte_has_no_nulls",
-        "asset": "dlt_chess_players_games",
+        "name": "white__resulte__has_no_nulls",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select * 
             from {players_games_raw} 
@@ -88,13 +96,47 @@ source_check_blobs = [
         """,
     },
     {
-        "name": "black__result_has_no_nulls",
-        "asset": "dlt_chess_players_games",
+        "name": "black__result__has_no_nulls",
+        "asset": players_games_raw_asset,
         "sql": f"""
             select * 
             from {players_games_raw} 
             where black__result is null
             or black__result = ''
+        """,
+    },
+]
+
+
+game_moves_check_blobs = [
+    {
+        "name": "color_move_index__has_no_nulls",
+        "asset": game_moves_asset,
+        "sql": f"""
+            select
+            color_move_index
+            from {game_moves} 
+            where color_move_index is null
+        """,
+    },
+    {
+        "name": "move_time__has_no_nulls",
+        "asset": game_moves_asset,
+        "sql": f"""
+            select
+            move_time_seconds
+            from {game_moves} 
+            where move_time_seconds is null
+        """,
+    },
+    {
+        "name": "move_time__is_positive",
+        "asset": game_moves_asset,
+        "sql": f"""
+            select
+            move_time_seconds
+            from {game_moves} 
+            where move_time_seconds < 0
         """,
     },
 ]

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . /app
 
 # Install packages
-RUN pip install -e "."
+RUN pip install -e ".[dev]"
 
 EXPOSE 3000
 
