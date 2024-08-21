@@ -7,13 +7,16 @@ services:
     restart: always
     ports:
       - 3000:3000
+      - 8888:8888
     volumes:
       - ./data:/data
+      - ./chess_dagster:/app
+
   superset:
       build:
         context: ./superset_dashboard
         dockerfile: Dockerfile
-      container_name: superset
+      container_name: chess_superset
       environment:
         - ADMIN_USERNAME=admin
         - ADMIN_PASSWORD=admin
