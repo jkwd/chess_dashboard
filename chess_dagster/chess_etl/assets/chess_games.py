@@ -216,8 +216,12 @@ def player_games(duckdb: DuckDBResource):
                     end as player_wdl
                     , if(player_result='win', opponent_result, player_result) as player_wdl_reason
 
-                    -- GAME DETAILS
+                    -- ECO DETAILS
                     , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco
+                    , regexp_extract(pgn, '(ECOUrl )"(.*)"', 2) as eco_url
+                    , replace(eco_url, 'https://www.chess.com/openings/', '') as eco_name
+                    
+                    -- GAME TIME DETAILS
                     , cast(replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-') as date) as game_start_date
                     , regexp_extract(pgn, '(StartTime )"(.*)"', 2) as game_start_time
                     , cast(concat(game_start_date, ' ', game_start_time) as timestamp) as game_start_timestamp
