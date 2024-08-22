@@ -12,5 +12,8 @@ superset superset init
 # Setup duckdb connection
 superset set_database_uri -d chess_db -u duckdb:///superset_home/chess.duckdb
 
+# Import dashboard
+superset import-dashboards -p ./dashboard.zip -u ${ADMIN_USERNAME}
+
 # Starting server
 /bin/sh -c /usr/bin/run-server.sh
