@@ -6,11 +6,10 @@ import pandas as pd
 import chess
 import chess.pgn
 import chess.engine
-from ..constants import SCHEMA_CORE
+from ..constants import SCHEMA_CORE, PREP_GAME_MOVES, CORE_PLAYER_GAMES
 
 username: str = os.getenv("USERNAME")
 game_moves = AssetSpec(AssetKey("game_moves"))
-table_name, _ = os.path.splitext(os.path.basename(__file__))
 
 def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
     if not (player_result == 'checkmated' or opponent_result == 'checkmated'):
@@ -64,12 +63,12 @@ def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
     return sorted([chess.piece_name(board.piece_at(attacker).piece_type) for attacker in attacking_pieces])
 
 @asset(deps=[game_moves], group_name='core')
-def player_games(duckdb: DuckDBResource):
+def games(duckdb: DuckDBResource):
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
         df: pd.DataFrame = conn.sql(f"""
             with game_moves_pivot as (
-                PIVOT chess_data_prep.game_moves
+                PIVOT {PREP_GAME_MOVES}
                 ON color_move
                 USING sum(move_time_seconds) as total_move_time, count(1) as num_moves
                 group by uuid
@@ -138,24 +137,11 @@ def player_games(duckdb: DuckDBResource):
 
                 -- PLAYER-OPPONENT DETAILS
                 , opponent_rating > player_rating as is_stronger_opponent
-                , case player_result
-                    -- WIN
-                    when 'win' then 'win'
-                    
-                    -- DRAW
-                    when 'stalemate' then 'draw'
-                    when 'agreed' then 'draw'
-                    when 'repetition' then 'draw'
-                    when '50move' then 'draw'
-                    when 'insufficient' then 'draw'
-                    when 'timevsinsufficient' then 'draw'
-                    
-                    -- LOSE
-                    when 'checkmated' then 'lose'
-                    when 'timeout' then 'lose'
-                    when 'resigned' then 'lose'
-                    when 'abandoned' then 'lose'
-                    when 'threecheck' then 'lose'
+                , case 
+                    when player_result = 'win' then 'win'
+                    when opponent_result = 'win' then 'lose'
+                    when player_result <> 'win' and opponent_result <> 'win' then 'draw'
+                    else 'unknown'
                 end as player_wdl
                 , if(player_result='win', opponent_result, player_result) as player_wdl_reason
 
@@ -181,9 +167,71 @@ def player_games(duckdb: DuckDBResource):
         
         conn.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_CORE};")
         conn.sql(f"""
-            CREATE OR REPLACE TABLE {SCHEMA_CORE}.{table_name} as (
+            CREATE OR REPLACE TABLE {CORE_PLAYER_GAMES} as (
                 select * from df
             );
         """)
 
     conn.close()
+    
+games_check_blobs = [
+    {
+        "name": "games__player_num_moves__positive",
+        "asset": games,
+        "sql": f"""
+            select
+            uuid
+            from {CORE_PLAYER_GAMES}
+            where player_num_moves < 0
+            group by 1
+        """,
+    },
+    {
+        "name": "games__player_wdl__no_unknown",
+        "asset": games,
+        "sql": f"""
+            select
+            uuid
+            from {CORE_PLAYER_GAMES}
+            where player_wdl = 'unknown'
+            group by 1
+        """,
+    },
+    {
+        "name": "games__game_start_timestamp__not_null",
+        "asset": games,
+        "sql": f"""
+            select
+            uuid
+            from {CORE_PLAYER_GAMES}
+            where game_start_timestamp is null
+            group by 1
+        """,
+    },
+    {
+        "name": "games__checkmate_pieces__no_checkmate_valid",
+        "asset": games,
+        "sql": f"""
+            select
+            uuid
+            from {CORE_PLAYER_GAMES}
+            where player_result <> 'checkmated'
+            and opponent_result <> 'checkmated'
+            and len(checkmate_pieces) > 0
+        """,
+    },
+    {
+        "name": "games__checkmate_pieces__checkmate_valid",
+        "asset": games,
+        "sql": f"""
+            select
+            uuid
+            from {CORE_PLAYER_GAMES}
+            where (
+                player_result = 'checkmated' 
+                or opponent_result = 'checkmated'
+            )
+            and len(checkmate_pieces) = 0
+        """,
+    },
+]

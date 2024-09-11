@@ -1,12 +1,11 @@
 from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
-from ..constants import SCHEMA_STAGING, SCHEMA_PREP
+from ..constants import SCHEMA_PREP, STAGING_PLAYERS_GAME, PREP_GAME_MOVES
 
 import pandas as pd
 import os
 
 players_games = AssetSpec(AssetKey("players_games"))
-table_name, _ = os.path.splitext(os.path.basename(__file__))
 
 @asset(deps=[players_games], group_name='prep')
 def game_moves(duckdb: DuckDBResource):
@@ -26,13 +25,14 @@ def game_moves(duckdb: DuckDBResource):
     
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
-        df: pd.DataFrame = conn.sql("""
+        # f-string needs double {{ or }} to escape the { and } character
+        df: pd.DataFrame = conn.sql(f"""
                 with player_games as (
                     select
                     uuid
                     , time_control
                     , pgn
-                    from chess_data_raw.players_games
+                    from {STAGING_PLAYERS_GAME}
                 )
                 , base as (
                     select
@@ -42,7 +42,7 @@ def game_moves(duckdb: DuckDBResource):
                     , cast(coalesce(split(time_control, '+')[2], '0') as integer) as time_control_add_seconds
                     , pgn
                     , split(pgn, '\n\n')[2] as pgn_moves
-                    , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+ {\[%clk \S+\]}') as moves_extract
+                    , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+ {{\[%clk \S+\]}}') as moves_extract
                     from player_games
                 )
                 , unnest as (
@@ -60,7 +60,7 @@ def game_moves(duckdb: DuckDBResource):
                     , split(moves_unnest, ' ')[2] as move
 
                     -- This is the clock after the addition of time
-                    , epoch(cast(replace(split(moves_unnest, ' ')[4], ']}', '') as interval)) as clock_interval_post_move
+                    , epoch(cast(replace(split(moves_unnest, ' ')[4], ']}}', '') as interval)) as clock_interval_post_move
 
                     -- To get the clock before the addition of time
                     , clock_interval_post_move - time_control_add_seconds as clock_interval_move
@@ -108,7 +108,7 @@ def game_moves(duckdb: DuckDBResource):
         
         conn.sql(f'CREATE SCHEMA IF NOT EXISTS {SCHEMA_PREP};')
         conn.sql(f"""
-            CREATE OR REPLACE TABLE {SCHEMA_PREP}.{table_name} as (
+            CREATE OR REPLACE TABLE {PREP_GAME_MOVES} as (
                 select * from df
             )
         """)
@@ -118,33 +118,33 @@ def game_moves(duckdb: DuckDBResource):
 game_moves_check_blobs = [
     {
         "name": "game_moves__id__is_unique",
-        "asset": table_name,
+        "asset": game_moves,
         "sql": f"""
             select
             id
             , count(1) as cnt
-            from {SCHEMA_PREP}.{table_name}
+            from {PREP_GAME_MOVES}
             group by 1
             having count(1) > 1
         """,
     },
     {
         "name": "game_moves__color_move_index__has_no_nulls",
-        "asset": table_name,
+        "asset": game_moves,
         "sql": f"""
             select
             color_move_index
-            from {SCHEMA_PREP}.{table_name}
+            from {PREP_GAME_MOVES}
             where color_move_index is null
         """,
     },
     {
         "name": "game_moves__move_time__has_no_nulls",
-        "asset": table_name,
+        "asset": game_moves,
         "sql": f"""
             select
             move_time_seconds
-            from {SCHEMA_PREP}.{table_name}
+            from {PREP_GAME_MOVES}
             where move_time_seconds is null
         """,
     },
@@ -153,13 +153,14 @@ game_moves_check_blobs = [
 game_moves_approx_check_blobs = [
     {
         "name": "game_moves__move_time__is_positive",
-        "asset": table_name,
+        "asset": game_moves,
+        "threshold": 0.01,
         "sql": f"""
             select 
             count_if(move_time_seconds < 0) as neg_time
             , count(1) as num_rows 
             , count_if(move_time_seconds < 0) / count(1) * 100.0 as perc
-            from {SCHEMA_PREP}.{table_name}
+            from {PREP_GAME_MOVES}
         """,
     },
 ]

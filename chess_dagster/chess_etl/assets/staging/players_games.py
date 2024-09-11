@@ -1,11 +1,8 @@
-from dagster import AssetKey, AssetSpec, asset, asset_check, AssetCheckResult
+from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
-from ..constants import SCHEMA_RAW, SCHEMA_STAGING
-
-import os
+from ..constants import SCHEMA_STAGING, RAW_PLAYERS_GAME, STAGING_PLAYERS_GAME
 
 dlt_chess_players_games = AssetSpec(AssetKey("dlt_chess_players_games"))
-table_name, _ = os.path.splitext(os.path.basename(__file__))
 
 @asset(deps=[dlt_chess_players_games], group_name='staging')
 def players_games(duckdb: DuckDBResource):
@@ -13,7 +10,7 @@ def players_games(duckdb: DuckDBResource):
         conn.sql("SET TimeZone = 'UTC';")
         conn.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_STAGING};")
         conn.sql(f"""
-                CREATE OR REPLACE VIEW {SCHEMA_STAGING}.{table_name} as (
+                CREATE OR REPLACE VIEW {STAGING_PLAYERS_GAME} as (
                     select
                     end_time::timestamp as end_time
                     , url::string as url
@@ -41,7 +38,7 @@ def players_games(duckdb: DuckDBResource):
                     , _dlt_load_id::double as _dlt_load_id
                     , _dlt_id::string as _dlt_id
                     , tournament::string as tournament
-                    from {SCHEMA_RAW}.{table_name}
+                    from {RAW_PLAYERS_GAME}
                 )
                  """)
     conn.close()
@@ -52,7 +49,7 @@ players_games_check_blobs = [
         "asset": players_games,
         "sql": f"""
             select * 
-            from {SCHEMA_STAGING}.{table_name}
+            from {STAGING_PLAYERS_GAME}
             where uuid is null
             or uuid = ''
         """,
@@ -64,7 +61,7 @@ players_games_check_blobs = [
             select
             uuid
             , count(1) as cnt
-            from {SCHEMA_STAGING}.{table_name}
+            from {STAGING_PLAYERS_GAME}
             group by uuid
             having count(1) > 1
         """,
@@ -74,7 +71,7 @@ players_games_check_blobs = [
         "asset": players_games,
         "sql": f"""
             select * 
-            from {SCHEMA_STAGING}.{table_name} 
+            from {STAGING_PLAYERS_GAME} 
             where time_control is null
             or time_control = ''
         """,
@@ -84,7 +81,7 @@ players_games_check_blobs = [
         "asset": players_games,
         "sql": f"""
             select * 
-            from {SCHEMA_STAGING}.{table_name} 
+            from {STAGING_PLAYERS_GAME} 
             where white__username is null
             or white__username = ''
         """,
@@ -94,7 +91,7 @@ players_games_check_blobs = [
         "asset": players_games,
         "sql": f"""
             select * 
-            from {SCHEMA_STAGING}.{table_name} 
+            from {STAGING_PLAYERS_GAME} 
             where black__username is null
             or black__username = ''
         """,
@@ -104,7 +101,7 @@ players_games_check_blobs = [
         "asset": players_games,
         "sql": f"""
             select * 
-            from {SCHEMA_STAGING}.{table_name} 
+            from {STAGING_PLAYERS_GAME} 
             where white__result is null
             or white__result = ''
         """,
@@ -114,7 +111,7 @@ players_games_check_blobs = [
         "asset": players_games,
         "sql": f"""
             select * 
-            from {SCHEMA_STAGING}.{table_name} 
+            from {STAGING_PLAYERS_GAME} 
             where black__result is null
             or black__result = ''
         """,

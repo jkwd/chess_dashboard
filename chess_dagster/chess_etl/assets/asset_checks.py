@@ -37,7 +37,8 @@ def make_perc_approx_check(check_blob: Mapping[str, str]) -> AssetChecksDefiniti
         conn.close()
         
         perc = df.iloc[0]['perc'].item()
+        threshold = check_blob['threshold']
         
-        return AssetCheckResult(passed=perc < 0.01, metadata={"perc": perc})
+        return AssetCheckResult(passed=perc < threshold, metadata={"perc": perc})
 
     return _check
