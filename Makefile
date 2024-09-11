@@ -12,5 +12,9 @@ test:
 	docker exec -it chess_dagster pytest chess_etl_tests
 	docker-compose down
 
+clean:
+	docker image rm chess_dashboard-superset
+	docker image rm chess_dashboard-chess_dagster
+
 jupyter-up:
 	docker exec -it chess_dagster jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
