@@ -8,11 +8,11 @@ import chess.pgn
 import chess.engine
 from chess_etl.assets.constants import SCHEMA_CORE, PREP_GAME_MOVES, PREP_PLAYER_GAMES, CORE_PLAYER_GAMES
 
-game_moves = AssetSpec(AssetKey("game_moves"))
+prep_game_moves = AssetSpec(AssetKey("prep_game_moves"))
 prep_player_games = AssetSpec(AssetKey("prep_player_games"))
 
 
-@asset(deps=[game_moves, prep_player_games], group_name='core')
+@asset(deps=[prep_game_moves, prep_player_games], group_name='core')
 def games(duckdb: DuckDBResource):
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")

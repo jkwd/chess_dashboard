@@ -59,8 +59,8 @@ def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
     return sorted([chess.piece_name(board.piece_at(attacker).piece_type) for attacker in attacking_pieces])
 
 
-@asset(deps=[stg_player_games], name='prep_player_games', group_name='prep')
-def player_games(duckdb: DuckDBResource):
+@asset(deps=[stg_player_games], group_name='prep')
+def prep_player_games(duckdb: DuckDBResource):
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
         
@@ -154,8 +154,8 @@ def player_games(duckdb: DuckDBResource):
 
 prep_player_games_check_blobs = [
     {
-        "name": "games__player_wdl__no_unknown",
-        "asset": player_games,
+        "name": "player_wdl__no_unknown",
+        "asset": prep_player_games,
         "sql": f"""
             select
             uuid
@@ -165,8 +165,8 @@ prep_player_games_check_blobs = [
         """,
     },
     {
-        "name": "games__game_start_timestamp__not_null",
-        "asset": player_games,
+        "name": "game_start_timestamp__not_null",
+        "asset": prep_player_games,
         "sql": f"""
             select
             uuid
@@ -176,8 +176,8 @@ prep_player_games_check_blobs = [
         """,
     },
     {
-        "name": "games__checkmate_pieces__no_checkmate_valid",
-        "asset": player_games,
+        "name": "checkmate_pieces__no_checkmate_valid",
+        "asset": prep_player_games,
         "sql": f"""
             select
             uuid
@@ -188,8 +188,8 @@ prep_player_games_check_blobs = [
         """,
     },
     {
-        "name": "games__checkmate_pieces__checkmate_valid",
-        "asset": player_games,
+        "name": "checkmate_pieces__checkmate_valid",
+        "asset": prep_player_games,
         "sql": f"""
             select
             uuid

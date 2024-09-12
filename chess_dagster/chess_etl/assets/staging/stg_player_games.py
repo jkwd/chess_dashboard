@@ -1,11 +1,12 @@
 from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
-from ..constants import SCHEMA_STAGING, RAW_PLAYERS_GAME, STAGING_PLAYERS_GAME
+from chess_etl.assets.constants import SCHEMA_STAGING, RAW_PLAYERS_GAME, STAGING_PLAYERS_GAME
+
 
 dlt_chess_players_games = AssetSpec(AssetKey("dlt_chess_players_games"))
 
-@asset(deps=[dlt_chess_players_games], name='stg_player_games', group_name='staging')
-def players_games(duckdb: DuckDBResource):
+@asset(deps=[dlt_chess_players_games], group_name='staging')
+def stg_player_games(duckdb: DuckDBResource):
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
         conn.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_STAGING};")
@@ -44,8 +45,8 @@ def players_games(duckdb: DuckDBResource):
 
 players_games_check_blobs = [
     {
-        "name": "players_games__uuid__has_no_nulls",
-        "asset": players_games,
+        "name": "uuid__has_no_nulls",
+        "asset": stg_player_games,
         "sql": f"""
             select * 
             from {STAGING_PLAYERS_GAME}
@@ -54,8 +55,8 @@ players_games_check_blobs = [
         """,
     },
     {
-        "name": "players_games__uuid__is_unique",
-        "asset": players_games,
+        "name": "uuid__is_unique",
+        "asset": stg_player_games,
         "sql": f"""
             select
             uuid
@@ -66,8 +67,8 @@ players_games_check_blobs = [
         """,
     },
     {
-        "name": "players_games__time_control__has_no_nulls",
-        "asset": players_games,
+        "name": "time_control__has_no_nulls",
+        "asset": stg_player_games,
         "sql": f"""
             select * 
             from {STAGING_PLAYERS_GAME} 
@@ -76,8 +77,8 @@ players_games_check_blobs = [
         """,
     },
     {
-        "name": "players_games__white__username__has_no_nulls",
-        "asset": players_games,
+        "name": "white__username__has_no_nulls",
+        "asset": stg_player_games,
         "sql": f"""
             select * 
             from {STAGING_PLAYERS_GAME} 
@@ -86,8 +87,8 @@ players_games_check_blobs = [
         """,
     },
     {
-        "name": "players_games__black__username__has_no_nulls",
-        "asset": players_games,
+        "name": "black__username__has_no_nulls",
+        "asset": stg_player_games,
         "sql": f"""
             select * 
             from {STAGING_PLAYERS_GAME} 
@@ -96,8 +97,8 @@ players_games_check_blobs = [
         """,
     },
     {
-        "name": "players_games__white__resulte__has_no_nulls",
-        "asset": players_games,
+        "name": "white__resulte__has_no_nulls",
+        "asset": stg_player_games,
         "sql": f"""
             select * 
             from {STAGING_PLAYERS_GAME} 
@@ -106,8 +107,8 @@ players_games_check_blobs = [
         """,
     },
     {
-        "name": "players_games__black__result__has_no_nulls",
-        "asset": players_games,
+        "name": "black__result__has_no_nulls",
+        "asset": stg_player_games,
         "sql": f"""
             select * 
             from {STAGING_PLAYERS_GAME} 

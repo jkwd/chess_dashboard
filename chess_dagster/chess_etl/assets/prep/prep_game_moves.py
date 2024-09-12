@@ -8,7 +8,7 @@ import os
 prep_player_games = AssetSpec(AssetKey("prep_player_games"))
 
 @asset(deps=[prep_player_games], group_name='prep')
-def game_moves(duckdb: DuckDBResource):
+def prep_game_moves(duckdb: DuckDBResource):
     # def _get_game_fens(game_move_index: int, pgn_string: str) -> str:
     #     pgn_parsed = StringIO(pgn_string)
     #     game = chess.pgn.read_game(pgn_parsed)
@@ -96,10 +96,10 @@ def game_moves(duckdb: DuckDBResource):
     conn.close()
 
 
-game_moves_check_blobs = [
+prep_game_moves_check_blobs = [
     {
-        "name": "game_moves__id__is_unique",
-        "asset": game_moves,
+        "name": "id__is_unique",
+        "asset": prep_game_moves,
         "sql": f"""
             select
             id
@@ -110,8 +110,8 @@ game_moves_check_blobs = [
         """,
     },
     {
-        "name": "game_moves__color_move_index__has_no_nulls",
-        "asset": game_moves,
+        "name": "color_move_index__has_no_nulls",
+        "asset": prep_game_moves,
         "sql": f"""
             select
             color_move_index
@@ -120,8 +120,8 @@ game_moves_check_blobs = [
         """,
     },
     {
-        "name": "game_moves__move_time__has_no_nulls",
-        "asset": game_moves,
+        "name": "move_time__has_no_nulls",
+        "asset": prep_game_moves,
         "sql": f"""
             select
             move_time_seconds
@@ -133,8 +133,8 @@ game_moves_check_blobs = [
 
 game_moves_approx_check_blobs = [
     {
-        "name": "game_moves__move_time__is_positive",
-        "asset": game_moves,
+        "name": "move_time__is_positive",
+        "asset": prep_game_moves,
         "threshold": 0.01,
         "sql": f"""
             select 
