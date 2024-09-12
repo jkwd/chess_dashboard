@@ -129,6 +129,13 @@ def player_games(duckdb: DuckDBResource):
                 end as player_wdl
                 , if(player_result='win', opponent_result, player_result) as player_wdl_reason
                 
+                -- GAME TIME DETAILS
+                , cast(replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-') as date) as game_start_date
+                , regexp_extract(pgn, '(StartTime )"(.*)"', 2) as game_start_time
+                , cast(concat(game_start_date, ' ', game_start_time) as timestamp) as game_start_timestamp
+                , cast(end_time as timestamp) as game_end_timestamp
+                , age(game_end_timestamp, game_start_timestamp) as time_played_interval
+                , epoch(time_played_interval) as time_played_seconds
                 from player_games
             )
             select * from final
@@ -144,3 +151,54 @@ def player_games(duckdb: DuckDBResource):
         """)
 
     conn.close()
+
+prep_player_games_check_blobs = [
+    {
+        "name": "games__player_wdl__no_unknown",
+        "asset": player_games,
+        "sql": f"""
+            select
+            uuid
+            from {PREP_PLAYER_GAMES}
+            where player_wdl = 'unknown'
+            group by 1
+        """,
+    },
+    {
+        "name": "games__game_start_timestamp__not_null",
+        "asset": player_games,
+        "sql": f"""
+            select
+            uuid
+            from {PREP_PLAYER_GAMES}
+            where game_start_timestamp is null
+            group by 1
+        """,
+    },
+    {
+        "name": "games__checkmate_pieces__no_checkmate_valid",
+        "asset": player_games,
+        "sql": f"""
+            select
+            uuid
+            from {PREP_PLAYER_GAMES}
+            where player_result <> 'checkmated'
+            and opponent_result <> 'checkmated'
+            and len(checkmate_pieces) > 0
+        """,
+    },
+    {
+        "name": "games__checkmate_pieces__checkmate_valid",
+        "asset": player_games,
+        "sql": f"""
+            select
+            uuid
+            from {PREP_PLAYER_GAMES}
+            where (
+                player_result = 'checkmated' 
+                or opponent_result = 'checkmated'
+            )
+            and len(checkmate_pieces) = 0
+        """,
+    },
+]

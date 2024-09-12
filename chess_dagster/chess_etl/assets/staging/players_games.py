@@ -39,7 +39,7 @@ def players_games(duckdb: DuckDBResource):
                     , _dlt_id::string as _dlt_id
                     from {RAW_PLAYERS_GAME}
                 )
-                 """)
+        """)
     conn.close()
 
 players_games_check_blobs = [

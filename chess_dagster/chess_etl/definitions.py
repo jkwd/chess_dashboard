@@ -27,11 +27,15 @@ all_asset_checks = []
 for check_blob in players_games.players_games_check_blobs:
     all_asset_checks.append(asset_checks.make_check(check_blob))
 
+for check_blob in player_games.prep_player_games_check_blobs:
+    all_asset_checks.append(asset_checks.make_check(check_blob))
+
 for check_blob in game_moves.game_moves_check_blobs:
     all_asset_checks.append(asset_checks.make_check(check_blob))
 
 for check_blob in games.games_check_blobs:
     all_asset_checks.append(asset_checks.make_check(check_blob))
+
 
 # Approx Asset Checks
 for check_blob in game_moves.game_moves_approx_check_blobs:
