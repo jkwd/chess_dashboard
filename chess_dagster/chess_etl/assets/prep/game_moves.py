@@ -1,13 +1,13 @@
 from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
-from ..constants import SCHEMA_PREP, STAGING_PLAYERS_GAME, PREP_GAME_MOVES
+from chess_etl.assets.constants import SCHEMA_PREP, PREP_PLAYER_GAMES, PREP_GAME_MOVES
 
 import pandas as pd
 import os
 
-players_games = AssetSpec(AssetKey("players_games"))
+prep_player_games = AssetSpec(AssetKey("prep_player_games"))
 
-@asset(deps=[players_games], group_name='prep')
+@asset(deps=[prep_player_games], group_name='prep')
 def game_moves(duckdb: DuckDBResource):
     # def _get_game_fens(game_move_index: int, pgn_string: str) -> str:
     #     pgn_parsed = StringIO(pgn_string)
@@ -27,81 +27,62 @@ def game_moves(duckdb: DuckDBResource):
         conn.sql("SET TimeZone = 'UTC';")
         # f-string needs double {{ or }} to escape the { and } character
         df: pd.DataFrame = conn.sql(f"""
-                with player_games as (
-                    select
-                    uuid
-                    , time_control
-                    , pgn
-                    from {STAGING_PLAYERS_GAME}
-                )
-                , base as (
-                    select
-                    uuid
-                    , time_control
-                    , cast(split(time_control, '+')[1] as integer) as time_control_base
-                    , cast(coalesce(split(time_control, '+')[2], '0') as integer) as time_control_add_seconds
-                    , pgn
-                    , split(pgn, '\n\n')[2] as pgn_moves
-                    , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+ {{\[%clk \S+\]}}') as moves_extract
-                    from player_games
-                )
-                , unnest as (
-                    select
-                    uuid
-                    , pgn
-                    , time_control
-                    , time_control_base
-                    , time_control_add_seconds
-                    , unnest(moves_extract) as moves_unnest
-                    , generate_subscripts(moves_extract, 1) AS game_move_index
-                    , split(moves_unnest, ' ')[1] as color_move_index_raw
-                    , cast(regexp_replace(color_move_index_raw, '\.+', '') as int) as color_move_index
-                    , if(regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White') as color_move
-                    , split(moves_unnest, ' ')[2] as move
-
-                    -- This is the clock after the addition of time
-                    , epoch(cast(replace(split(moves_unnest, ' ')[4], ']}}', '') as interval)) as clock_interval_post_move
-
-                    -- To get the clock before the addition of time
-                    , clock_interval_post_move - time_control_add_seconds as clock_interval_move
-                    from base
-                )
-                , final as (
-                    select 
-                    uuid
-                    , pgn
-                    , time_control
-                    , time_control_base
-                    , time_control_add_seconds
-                    , game_move_index
-                    , color_move
-                    , color_move_index
-                    , move
-                    , coalesce(
-                        lag(clock_interval_post_move) over(partition by uuid, color_move order by color_move_index)
-                        , time_control_base
-                    )  as prev_clock_interval
-                    , clock_interval_move
-                    , clock_interval_post_move
-                    , prev_clock_interval - clock_interval_move as move_time_seconds
-                    from unnest
-                )
+            with player_games as (
                 select
-                concat(uuid::string, '_', game_move_index::string) as id
-                , uuid::string as uuid
-                , pgn::string as pgn
-                , time_control::string as time_control
-                , time_control_base::int as time_control_base
-                , time_control_add_seconds::int as time_control_add_seconds
-                , game_move_index::int as game_move_index
-                , color_move::string as color_move
-                , color_move_index::int as color_move_index
-                , move::string as move
-                , prev_clock_interval::double as prev_clock_interval
-                , clock_interval_move::double as clock_interval_move
-                , clock_interval_post_move::double as clock_interval_post_move
-                , move_time_seconds::double as move_time_seconds
-                from final
+                uuid
+                , time_control_base
+                , time_control_add_seconds
+                , pgn_move_extract
+                , pgn_clock_extract
+                from {PREP_PLAYER_GAMES}
+            )
+            , unnest as (
+                select 
+                *
+                , generate_subscripts(pgn_move_extract, 1) AS game_move_index
+                , unnest(pgn_move_extract) as move_unnest
+                , unnest(pgn_clock_extract) as clock_unnest
+                , split(move_unnest, ' ')[1] as color_move_index_raw
+                , cast(regexp_replace(color_move_index_raw, '\.+', '') as int) as color_move_index
+                , if(regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White') as color_move
+                , split(move_unnest, ' ')[2] as move
+                
+                -- This is the clock after the addition of time
+                , epoch(cast(replace(split(clock_unnest, ' ')[2], ']}}', '') as interval)) as clock_interval_post_move
+                
+                -- To get the clock before the addition of time
+                , clock_interval_post_move - time_control_add_seconds as clock_interval_move
+                
+                from player_games
+            )
+            , final as (
+                select 
+                uuid
+                , game_move_index
+                , color_move
+                , color_move_index
+                , move
+                , coalesce(
+                    lag(clock_interval_post_move) over(partition by uuid, color_move order by color_move_index)
+                    , time_control_base
+                )  as prev_clock_interval
+                , clock_interval_move
+                , clock_interval_post_move
+                , prev_clock_interval - clock_interval_move as move_time_seconds
+                from unnest
+            )
+            select
+            concat(uuid::string, '_', game_move_index::string) as id
+            , uuid::string as uuid
+            , game_move_index::int as game_move_index
+            , color_move::string as color_move
+            , color_move_index::int as color_move_index
+            , move::string as move
+            , prev_clock_interval::double as prev_clock_interval
+            , clock_interval_move::double as clock_interval_move
+            , clock_interval_post_move::double as clock_interval_post_move
+            , move_time_seconds::double as move_time_seconds
+            from final
         """).to_df()
         
         # df['game_move_fen'] = df[['game_move_index', 'pgn']].apply(lambda x: _get_game_fens(x['game_move_index'], x['pgn']), axis=1)

@@ -4,7 +4,7 @@ from ..constants import SCHEMA_STAGING, RAW_PLAYERS_GAME, STAGING_PLAYERS_GAME
 
 dlt_chess_players_games = AssetSpec(AssetKey("dlt_chess_players_games"))
 
-@asset(deps=[dlt_chess_players_games], group_name='staging')
+@asset(deps=[dlt_chess_players_games], name='stg_player_games', group_name='staging')
 def players_games(duckdb: DuckDBResource):
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")

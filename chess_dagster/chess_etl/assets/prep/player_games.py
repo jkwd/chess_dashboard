@@ -4,10 +4,10 @@ from dagster_duckdb import DuckDBResource
 import chess
 
 import os
-from ..constants import SCHEMA_PREP, STAGING_PLAYERS_GAME, PREP_PLAYER_GAMES
+from chess_etl.assets.constants import SCHEMA_PREP, STAGING_PLAYERS_GAME, PREP_PLAYER_GAMES
 
 username: str = os.getenv("USERNAME")
-staging_players_games = AssetSpec(AssetKey("players_games"))
+stg_player_games = AssetSpec(AssetKey("stg_player_games"))
 
 def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
     if not (player_result == 'checkmated' or opponent_result == 'checkmated'):
@@ -59,7 +59,7 @@ def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
     return sorted([chess.piece_name(board.piece_at(attacker).piece_type) for attacker in attacking_pieces])
 
 
-@asset(deps=[staging_players_games], group_name='prep')
+@asset(deps=[stg_player_games], name='prep_player_games', group_name='prep')
 def player_games(duckdb: DuckDBResource):
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
