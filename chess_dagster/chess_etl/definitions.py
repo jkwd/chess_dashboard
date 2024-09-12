@@ -6,7 +6,7 @@ from dagster import (
 )
 from chess_etl.assets import chess_source, asset_checks
 from chess_etl.assets.staging import players_games
-from chess_etl.assets.prep import game_moves
+from chess_etl.assets.prep import player_games, game_moves
 from chess_etl.assets.core import games
 from chess_etl.resources import dlt_resource, duckdb_resource
 
@@ -17,7 +17,8 @@ daily_refresh_schedule = ScheduleDefinition(
 # Asset
 chess_source_assets = load_assets_from_modules([chess_source])
 chess_staging_assets = load_assets_from_modules([players_games])
-chess_prep_assets = load_assets_from_modules([game_moves])
+chess_player_games_assets = load_assets_from_modules([player_games])
+chess_game_moves_assets = load_assets_from_modules([game_moves])
 chess_core_assets = load_assets_from_modules([games])
 
 
@@ -39,7 +40,11 @@ for check_blob in game_moves.game_moves_approx_check_blobs:
 
 # Must be last
 defs = Definitions(
-    assets=[*chess_source_assets, *chess_staging_assets, *chess_prep_assets, *chess_core_assets],
+    assets=[*chess_source_assets, 
+            *chess_staging_assets, 
+            *chess_player_games_assets, 
+            *chess_game_moves_assets,
+            *chess_core_assets],
     asset_checks=all_asset_checks,
     resources={
         "dlt": dlt_resource,

@@ -37,7 +37,6 @@ def players_games(duckdb: DuckDBResource):
                     , black__uuid::string as black__uuid
                     , _dlt_load_id::double as _dlt_load_id
                     , _dlt_id::string as _dlt_id
-                    , tournament::string as tournament
                     from {RAW_PLAYERS_GAME}
                 )
                  """)
