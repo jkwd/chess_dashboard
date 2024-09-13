@@ -66,6 +66,8 @@ services:
         - ADMIN_USERNAME=admin
         - ADMIN_PASSWORD=admin
         - ADMIN_EMAIL=admin@superset.com
+      env_file:
+        - ./superset_dashboard/.env
       ports:
         - 8088:8088
       volumes:

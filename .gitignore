@@ -166,6 +166,3 @@ cython_debug/
 
 # Data
 data/*
-
-# Superset config
-superset_config.py

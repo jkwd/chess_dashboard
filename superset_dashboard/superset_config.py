@@ -1,0 +1,7 @@
+import os
+
+ENABLE_PROXY_FIX = True
+FEATURE_FLAGS = {
+    'ENABLE_TEMPLATE_PROCESSING': True,
+}
+SECRET_KEY = os.getenv("SUPERSET_SECRET_KEY")
