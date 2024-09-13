@@ -51,14 +51,6 @@ def games(duckdb: DuckDBResource):
                     , if(player_color = 'White', black_total_move_time, white_total_move_time) as opponent_total_move_time
                     , if(player_color = 'White', black_num_moves, white_num_moves) as opponent_num_moves
 
-                    -- GAME TIME DETAILS
-                    , cast(replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-') as date) as game_start_date
-                    , regexp_extract(pgn, '(StartTime )"(.*)"', 2) as game_start_time
-                    , cast(concat(game_start_date, ' ', game_start_time) as timestamp) as game_start_timestamp
-                    , cast(end_time as timestamp) as game_end_timestamp
-                    , age(game_end_timestamp, game_start_timestamp) as time_played_interval
-                    , epoch(time_played_interval) as time_played_seconds
-
                     from joined
                 )
                 select
@@ -76,6 +68,8 @@ def games(duckdb: DuckDBResource):
                 , time_control_base
                 , time_control_add_seconds
                 , time_played_seconds
+                , game_start_date
+                , game_start_time
                 , game_start_timestamp
                 , game_end_timestamp
 
