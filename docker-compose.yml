@@ -36,10 +36,6 @@ services:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-      - ./data/storage:/opt/dagster/app/storage
-      - ./data/logs:/opt/dagster/app/logs
-      - ./data/.logs_queue:/opt/dagster/app/.logs_queue
-      - ./data/.nux:/opt/dagster/app/.nux
   
   chess_dagster_daemon:
     build:
@@ -59,10 +55,6 @@ services:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-      - ./data/storage:/opt/dagster/app/storage
-      - ./data/logs:/opt/dagster/app/logs
-      - ./data/.logs_queue:/opt/dagster/app/.logs_queue
-      - ./data/.nux:/opt/dagster/app/.nux
     command: "dagster-daemon run"
   
   superset:
