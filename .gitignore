@@ -166,3 +166,7 @@ cython_debug/
 
 # Data
 data/*
+chess_dagster/storage
+chess_dagster/.logs_queue
+chess_dagster/.nux
+chess_dagster/logs
