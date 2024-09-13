@@ -6,6 +6,7 @@ from dagster import (
 
 from typing import Mapping
 
+
 # https://docs.dagster.io/concepts/assets/asset-checks/define-execute-asset-checks
 def make_check(check_blob: Mapping[str, str]) -> AssetChecksDefinition:
     @asset_check(
@@ -23,6 +24,7 @@ def make_check(check_blob: Mapping[str, str]) -> AssetChecksDefinition:
 
     return _check
 
+
 def make_perc_approx_check(check_blob: Mapping[str, str]) -> AssetChecksDefinition:
     @asset_check(
         name=check_blob["name"],
@@ -35,10 +37,10 @@ def make_perc_approx_check(check_blob: Mapping[str, str]) -> AssetChecksDefiniti
             conn.sql("SET TimeZone = 'UTC';")
             df = conn.sql(check_blob["sql"]).to_df()
         conn.close()
-        
+
         perc = df.iloc[0]['perc'].item()
         threshold = check_blob['threshold']
-        
+
         return AssetCheckResult(passed=perc < threshold, metadata={"perc": perc})
 
     return _check

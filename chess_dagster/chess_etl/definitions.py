@@ -45,9 +45,9 @@ for check_blob in prep_game_moves.game_moves_approx_check_blobs:
 
 # Must be last
 defs = Definitions(
-    assets=[*chess_source_assets, 
-            *stg_player_games_assets, 
-            *prep_player_games_assets, 
+    assets=[*chess_source_assets,
+            *stg_player_games_assets,
+            *prep_player_games_assets,
             *prep_game_moves_assets,
             *chess_core_assets],
     asset_checks=all_asset_checks,

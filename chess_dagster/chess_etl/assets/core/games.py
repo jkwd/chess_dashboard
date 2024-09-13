@@ -1,12 +1,10 @@
 from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
 
-import os
-import pandas as pd
-import chess
-import chess.pgn
-import chess.engine
-from chess_etl.assets.constants import SCHEMA_CORE, PREP_GAME_MOVES, PREP_PLAYER_GAMES, CORE_PLAYER_GAMES
+from chess_etl.assets.constants import (SCHEMA_CORE,
+                                        PREP_GAME_MOVES,
+                                        PREP_PLAYER_GAMES,
+                                        CORE_PLAYER_GAMES)
 
 prep_game_moves = AssetSpec(AssetKey("prep_game_moves"))
 prep_player_games = AssetSpec(AssetKey("prep_player_games"))
@@ -37,7 +35,7 @@ def games(duckdb: DuckDBResource):
                     , black_total_move_time
                     , black_num_moves
                     from player_games as pg
-                    
+
                     left join game_moves_pivot as gm
                     on pg.uuid = gm.uuid
                 )
@@ -133,7 +131,8 @@ def games(duckdb: DuckDBResource):
             )
         """)
     conn.close()
-    
+
+
 games_check_blobs = [
     {
         "name": "games__player_num_moves__positive",

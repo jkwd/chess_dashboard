@@ -1,11 +1,11 @@
 from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
-from chess_etl.assets.constants import SCHEMA_PREP, PREP_PLAYER_GAMES, PREP_GAME_MOVES
 
 import pandas as pd
-import os
+from chess_etl.assets.constants import SCHEMA_PREP, PREP_PLAYER_GAMES, PREP_GAME_MOVES
 
 prep_player_games = AssetSpec(AssetKey("prep_player_games"))
+
 
 @asset(deps=[prep_player_games], group_name='prep')
 def prep_game_moves(duckdb: DuckDBResource):
@@ -13,16 +13,16 @@ def prep_game_moves(duckdb: DuckDBResource):
     #     pgn_parsed = StringIO(pgn_string)
     #     game = chess.pgn.read_game(pgn_parsed)
     #     board = game.board()
-        
+
     #     i = 1
     #     for move in game.mainline_moves():
     #         board.push(move)
     #         if i == game_move_index:
     #             break
     #         i += 1
-        
+
     #     return board.fen()
-    
+
     with duckdb.get_connection() as conn:
         conn.sql("SET TimeZone = 'UTC';")
         # f-string needs double {{ or }} to escape the { and } character
@@ -37,7 +37,7 @@ def prep_game_moves(duckdb: DuckDBResource):
                 from {PREP_PLAYER_GAMES}
             )
             , unnest as (
-                select 
+                select
                 *
                 , generate_subscripts(pgn_move_extract, 1) AS game_move_index
                 , unnest(pgn_move_extract) as move_unnest
@@ -46,17 +46,17 @@ def prep_game_moves(duckdb: DuckDBResource):
                 , cast(regexp_replace(color_move_index_raw, '\.+', '') as int) as color_move_index
                 , if(regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White') as color_move
                 , split(move_unnest, ' ')[2] as move
-                
+
                 -- This is the clock after the addition of time
                 , epoch(cast(replace(split(clock_unnest, ' ')[2], ']}}', '') as interval)) as clock_interval_post_move
-                
+
                 -- To get the clock before the addition of time
                 , clock_interval_post_move - time_control_add_seconds as clock_interval_move
-                
+
                 from player_games
             )
             , final as (
-                select 
+                select
                 uuid
                 , game_move_index
                 , color_move
@@ -84,9 +84,9 @@ def prep_game_moves(duckdb: DuckDBResource):
             , move_time_seconds::double as move_time_seconds
             from final
         """).to_df()
-        
+
         # df['game_move_fen'] = df[['game_move_index', 'pgn']].apply(lambda x: _get_game_fens(x['game_move_index'], x['pgn']), axis=1)
-        
+
         conn.sql(f'CREATE SCHEMA IF NOT EXISTS {SCHEMA_PREP};')
         conn.sql(f"""
             CREATE OR REPLACE TABLE {PREP_GAME_MOVES} as (
@@ -137,9 +137,9 @@ game_moves_approx_check_blobs = [
         "asset": prep_game_moves,
         "threshold": 0.01,
         "sql": f"""
-            select 
+            select
             count_if(move_time_seconds < 0) as neg_time
-            , count(1) as num_rows 
+            , count(1) as num_rows
             , count_if(move_time_seconds < 0) / count(1) * 100.0 as perc
             from {PREP_GAME_MOVES}
         """,

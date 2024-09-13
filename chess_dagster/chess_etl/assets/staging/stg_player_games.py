@@ -2,8 +2,8 @@ from dagster import AssetKey, AssetSpec, asset
 from dagster_duckdb import DuckDBResource
 from chess_etl.assets.constants import SCHEMA_STAGING, RAW_PLAYERS_GAME, STAGING_PLAYERS_GAME
 
-
 dlt_chess_players_games = AssetSpec(AssetKey("dlt_chess_players_games"))
+
 
 @asset(deps=[dlt_chess_players_games], group_name='staging')
 def stg_player_games(duckdb: DuckDBResource):
@@ -43,12 +43,13 @@ def stg_player_games(duckdb: DuckDBResource):
         """)
     conn.close()
 
+
 players_games_check_blobs = [
     {
         "name": "uuid__has_no_nulls",
         "asset": stg_player_games,
         "sql": f"""
-            select * 
+            select *
             from {STAGING_PLAYERS_GAME}
             where uuid is null
             or uuid = ''
@@ -70,8 +71,8 @@ players_games_check_blobs = [
         "name": "time_control__has_no_nulls",
         "asset": stg_player_games,
         "sql": f"""
-            select * 
-            from {STAGING_PLAYERS_GAME} 
+            select *
+            from {STAGING_PLAYERS_GAME}
             where time_control is null
             or time_control = ''
         """,
@@ -80,8 +81,8 @@ players_games_check_blobs = [
         "name": "white__username__has_no_nulls",
         "asset": stg_player_games,
         "sql": f"""
-            select * 
-            from {STAGING_PLAYERS_GAME} 
+            select *
+            from {STAGING_PLAYERS_GAME}
             where white__username is null
             or white__username = ''
         """,
@@ -90,8 +91,8 @@ players_games_check_blobs = [
         "name": "black__username__has_no_nulls",
         "asset": stg_player_games,
         "sql": f"""
-            select * 
-            from {STAGING_PLAYERS_GAME} 
+            select *
+            from {STAGING_PLAYERS_GAME}
             where black__username is null
             or black__username = ''
         """,
@@ -100,8 +101,8 @@ players_games_check_blobs = [
         "name": "white__resulte__has_no_nulls",
         "asset": stg_player_games,
         "sql": f"""
-            select * 
-            from {STAGING_PLAYERS_GAME} 
+            select *
+            from {STAGING_PLAYERS_GAME}
             where white__result is null
             or white__result = ''
         """,
@@ -110,8 +111,8 @@ players_games_check_blobs = [
         "name": "black__result__has_no_nulls",
         "asset": stg_player_games,
         "sql": f"""
-            select * 
-            from {STAGING_PLAYERS_GAME} 
+            select *
+            from {STAGING_PLAYERS_GAME}
             where black__result is null
             or black__result = ''
         """,
