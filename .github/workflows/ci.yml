@@ -16,8 +16,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    
     - name: Check docker-compose
+      run: docker-compose --version
+
+    - name: Check docker-compose format
       run: docker-compose -f docker-compose.yml config
     
     - name: Install Make
