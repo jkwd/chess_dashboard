@@ -1,0 +1,7 @@
+# workspace.yaml
+
+# load_from:
+#   - python_module: chess_etl.definitions
+
+load_from:
+  - python_file: "./chess_etl/definitions.py"
