@@ -6,7 +6,7 @@ def test_get_checkmate_pieces_1():
     player_color = 'Black'
     player_result = 'win'
     opponent_result = 'checkmated'
-    expected_result = ['king', 'pawn', 'rook', 'rook']
+    # expected_result = ['king', 'pawn', 'rook', 'rook']
     wrong_expected_result = ['king', 'pawn', 'rook']
     result = get_checkmate_pieces(fen=fen,
                                   player_color=player_color,
