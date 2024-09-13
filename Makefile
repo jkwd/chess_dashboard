@@ -1,17 +1,17 @@
 build:
-	docker-compose build --no-cache
+	docker compose build --no-cache
 
 up:
-	docker-compose up -d
+	docker compose up -d
 
 down:
-	docker-compose down
+	docker compose down
 
 lint:
-	docker-compose run --rm chess_dagster_daemon flake8 chess_etl chess_etl_tests
+	docker compose run --rm chess_dagster_daemon flake8 chess_etl chess_etl_tests
 
 test:
-	docker-compose run --rm chess_dagster_daemon pytest chess_etl_tests
+	docker compose run --rm chess_dagster_daemon pytest chess_etl_tests
 
 clean:
 	docker image rm chess_dashboard-chess_dagster_webserver
