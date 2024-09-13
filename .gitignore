@@ -165,8 +165,7 @@ cython_debug/
 .DS_Store
 
 # Data
-chess.duckdb
-superset.db
+data/*
 
 # Superset config
 superset_config.py
