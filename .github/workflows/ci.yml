@@ -8,10 +8,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
+    env:
+      SUPERSET_SECRET_KEY: ${{ secrets.SUPERSET_SECRET_KEY }}
 
     steps:
     - name: Checkout code
