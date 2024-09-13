@@ -1,0 +1,34 @@
+name: Docker CI Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check docker-compose
+      run: docker-compose -f docker-compose.yml config
+    
+    - name: Install Make
+      run: sudo apt-get install make
+    
+    - name: Build the docker compose images
+      run: make build
+
+    - name: Run lint
+      run: make lint
+
+    - name: Run Test
+      run: make test
+      
