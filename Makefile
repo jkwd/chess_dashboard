@@ -7,10 +7,11 @@ up:
 down:
 	docker-compose down
 
+lint:
+	docker-compose run --rm chess_dagster_daemon flake8 chess_etl chess_etl_tests
+
 test:
-	docker-compose up -d chess_dagster
-	docker exec -it chess_dagster pytest chess_etl_tests
-	docker-compose down
+	docker-compose run --rm chess_dagster_daemon pytest chess_etl_tests
 
 clean:
 	docker image rm chess_dashboard-chess_dagster_webserver
@@ -18,4 +19,4 @@ clean:
 	docker image rm chess_dashboard-superset
 
 jupyter:
-	docker exec -it chess_dagster jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
+	docker exec -it chess_dagster_webserver jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
