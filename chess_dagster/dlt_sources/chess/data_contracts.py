@@ -1,6 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import ClassVar
+from dlt.common.libs.pydantic import DltConfig
 
 
 class Accuracies(BaseModel):
@@ -13,9 +15,8 @@ class PlayerColor(BaseModel):
     id: str = Field(alias="@id")
     username: str
     uuid: str
-    
 
-class PlayersGames(BaseModel):
+class PlayersGamesBase(BaseModel):
     url: str
     pgn: str
     time_control: str
@@ -31,3 +32,6 @@ class PlayersGames(BaseModel):
     white: PlayerColor
     black: PlayerColor
     eco: str
+
+class PlayersGames(PlayersGamesBase):
+  dlt_config: ClassVar[DltConfig] = {"skip_complex_types": True}

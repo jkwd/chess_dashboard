@@ -84,7 +84,7 @@ def players_archives(username: str) -> Iterator[List[TDataItem]]:
 
 
 @dlt.resource(
-    write_disposition="replace", columns={"end_time": {"data_type": "timestamp"}}
+    write_disposition="replace", columns=PlayersGames
 )
 def players_games(
     username: str
