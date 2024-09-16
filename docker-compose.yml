@@ -56,17 +56,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
     command: "dagster-daemon run"
-  
-  superset:
-      build:
-        context: ./superset_dashboard
-        dockerfile: Dockerfile
-      container_name: chess_superset
-      environment:
-        - ADMIN_USERNAME=admin
-        - ADMIN_PASSWORD=admin
-        - ADMIN_EMAIL=admin@superset.com
-      ports:
-        - 8088:8088
-      volumes:
-        - ./data:/app/superset_home

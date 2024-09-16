@@ -1,5 +1,0 @@
-services:
-  superset:
-      build: .
-      env_file:
-        - ./superset_dashboard/.env

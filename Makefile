@@ -2,10 +2,10 @@ build:
 	docker compose build --no-cache
 
 up:
-	docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d
+	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml up -d
 
 down:
-	docker compose down
+	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml down
 
 lint:
 	docker compose run --rm chess_dagster_daemon flake8 chess_etl chess_etl_tests
