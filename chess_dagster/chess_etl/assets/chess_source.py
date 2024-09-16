@@ -8,13 +8,11 @@ from . import constants
 
 # https://docs.dagster.io/integrations/embedded-elt/dlt
 
-username: str = os.getenv("USERNAME")
-
 
 @dlt_assets(
     dlt_source=source(
-        # players=['magnuscarlsen'], start_month="2022/11", end_month="2022/12"
-        players=[username]
+        # username='magnuscarlsen'
+        username=os.getenv("USERNAME")
     ),
     dlt_pipeline=pipeline(
         pipeline_name="chess_pipeline",
