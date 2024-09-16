@@ -29,7 +29,7 @@ def source(
         players_archives, players_games, players_online_status
     """
     return (
-        players_profiles(players),
+        players_profiles(players[0]),
         players_archives(players),
         players_games(players, start_month=start_month, end_month=end_month),
         # players_online_status(players),
@@ -43,13 +43,13 @@ def source(
         "joined": {"data_type": "timestamp"},
     },
 )
-def players_profiles(players: List[str]) -> Iterator[TDataItem]:
+def players_profiles(username: str) -> TDataItem:
     """
-    Yields player profiles for a list of player usernames.
+    Yields player profile for a given player usernames.
     Args:
-        players (List[str]): List of player usernames to retrieve profiles for.
+        username (str): player username to retrieve profile for.
     Yields:
-        Iterator[TDataItem]: An iterator over player profiles data.
+        TDataItem: Player profiles data.
     """
 
     # get archives in parallel by decorating the http request with defer
@@ -57,8 +57,7 @@ def players_profiles(players: List[str]) -> Iterator[TDataItem]:
     def _get_profile(username: str) -> TDataItem:
         return get_path_with_retry(f"player/{username}")
 
-    for username in players:
-        yield _get_profile(username)
+    yield _get_profile(username)
 
 
 @dlt.resource(write_disposition="replace", selected=False)
