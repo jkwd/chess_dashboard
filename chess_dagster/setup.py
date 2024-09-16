@@ -4,6 +4,8 @@ setup(
     name="chess",
     packages=find_packages(exclude=["chess_tests"]),
     install_requires=[
+        "pydantic==2.9.1",
+        "pydantic_core==2.23.3",
         "dagster==1.8.0",
         "dagster-webserver==1.8.0",
         "dagster-postgres==0.24.0",

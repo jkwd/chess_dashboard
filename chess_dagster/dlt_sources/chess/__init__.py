@@ -10,6 +10,7 @@ from dlt.sources.helpers import requests
 
 from .helpers import get_path_with_retry, get_url_with_retry, validate_month_string
 from .settings import UNOFFICIAL_CHESS_API_URL
+from .data_contracts import PlayersGames
 
 
 @dlt.source(name="chess")
