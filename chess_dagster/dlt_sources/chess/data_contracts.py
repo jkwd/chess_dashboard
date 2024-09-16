@@ -1,27 +1,33 @@
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, Field
 from datetime import datetime
 
+
+class Accuracies(BaseModel):
+    white: float
+    black: float
+
+class PlayerColor(BaseModel):
+    rating: int
+    result: str
+    id: str = Field(alias="@id")
+    username: str
+    uuid: str
+    
+
 class PlayersGames(BaseModel):
-    end_time: datetime
     url: str
     pgn: str
     time_control: str
+    end_time: datetime
     rated: bool
-    accuracies__white: float
-    accuracies__black: float
+    accuracies: Optional[Accuracies] = None
     tcn: str
     uuid: str
     initial_setup: str
     fen: str
     time_class: str
     rules: str
-    white__rating: int
-    white__result: str
-    white__aid: str
-    white__username: str
-    white__uuid: str
-    black__rating: int
-    black__result: str
-    black__aid: str
-    black__username: str
-    black__uuid: str
+    white: PlayerColor
+    black: PlayerColor
+    eco: str
