@@ -1,5 +1,5 @@
 build:
-	docker compose build --no-cache
+	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml build --no-cache
 
 up:
 	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml up -d
