@@ -6,8 +6,8 @@ from dlt.common.libs.pydantic import DltConfig
 
 
 class Accuracies(BaseModel):
-    white: float
-    black: float
+    white: Optional[float] = None
+    black: Optional[float] = None
 
 class PlayerColor(BaseModel):
     rating: int
@@ -34,4 +34,4 @@ class PlayersGamesBase(BaseModel):
     eco: str
 
 class PlayersGames(PlayersGamesBase):
-  dlt_config: ClassVar[DltConfig] = {"skip_complex_types": True}
+  dlt_config: ClassVar[DltConfig] = {"skip_nested_types": True}
