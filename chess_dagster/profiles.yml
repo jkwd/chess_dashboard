@@ -3,9 +3,7 @@ chess_dbt:
   outputs:
     dev:
       type: duckdb
-      path: ../data/chess.duckdb
-      threads: 1
+      path: ../../data/chess.duckdb
     prod:
       type: duckdb
       path: /data/chess.duckdb
-      threads: 1
