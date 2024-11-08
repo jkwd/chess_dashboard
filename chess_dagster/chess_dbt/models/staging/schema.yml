@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_player_games
+    columns:
+    - name: end_time
+    - name: url
+    - name: pgn
+    - name: time_control
+      tests:
+        - not_null
+    - name: rated
+    - name: tcn
+    - name: uuid
+      tests:
+        - unique
+        - not_null
+    - name: initial_setup
+    - name: fen
+    - name: time_class
+    - name: rules
+    - name: white__rating
+    - name: white__result
+      tests:
+        - not_null
+    - name: white__aid
+    - name: white__username
+      tests:
+        - not_null
+    - name: white__uuid
+    - name: black__rating
+    - name: black__result
+      tests:
+        - not_null
+    - name: black__aid
+    - name: black__username
+      tests:
+        - not_null
+    - name: black__uuid
+    - name: eco
+    - name: _dlt_load_id
+    - name: _dlt_id
+    - name: accuracies_white
+    - name: accuracies_black

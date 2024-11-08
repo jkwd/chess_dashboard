@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: chess_source
+    schema: chess_data_raw
+    tables:
+      - name: players_games
+        meta:
+          dagster:
+            asset_key: ["dlt_chess_players_games"]
+        columns:
+          - name: end_time
+          - name: url
+          - name: pgn
+          - name: time_control
+          - name: rated
+          - name: tcn
+          - name: uuid
+          - name: initial_setup
+          - name: fen
+          - name: time_class
+          - name: rules
+          - name: white__rating
+          - name: white__result
+          - name: white__aid
+          - name: white__username
+          - name: white__uuid
+          - name: black__rating
+          - name: black__result
+          - name: black__aid
+          - name: black__username
+          - name: black__uuid
+          - name: eco
+          - name: _dlt_load_id
+          - name: _dlt_id
+          - name: accuracies_white
+          - name: accuracies_black
