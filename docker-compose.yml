@@ -31,8 +31,9 @@ services:
       POSTGRES_USER: "postgres_user"
       POSTGRES_PASSWORD: "postgres_password"
       POSTGRES_DB: "postgres_db"
+    env_file: .env
     volumes:
-      - ./chess_dagster:/opt/dagster/app
+      - ./chess_dagster:/opt/app/dagster
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
@@ -50,8 +51,9 @@ services:
       POSTGRES_USER: "postgres_user"
       POSTGRES_PASSWORD: "postgres_password"
       POSTGRES_DB: "postgres_db"
+    env_file: .env
     volumes:
-      - ./chess_dagster:/opt/dagster/app
+      - ./chess_dagster:/opt/app/dagster
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
