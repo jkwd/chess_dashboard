@@ -1,5 +1,4 @@
-from chess_etl.assets.prep.prep_player_games import get_checkmate_pieces
-
+from chess_dbt.models.prep.prep_player_games_checkmate import get_checkmate_pieces
 
 def test_get_checkmate_pieces_1():
     fen = '8/8/4R2p/3P2pk/8/5r1K/3r4/8 w - -'
