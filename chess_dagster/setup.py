@@ -11,12 +11,11 @@ setup(
         "dagster-webserver==1.9.0",
         "dagster-postgres==0.25.0",
         "dagster-embedded-elt==0.25.0",
-        "dagster-duckdb-pandas==0.25.0",
-        "dagster-duckdb==0.25.0",
         "dagster-dbt==0.25.0",
         "dlt[duckdb]==1.3.0",
         "dbt-duckdb==1.9.0",
         "python-chess==1.2.0",
+        "pandas"
     ],
     extras_require={
         "dev": ["pytest==8.3.2", "jupyter==1.0.0", "flake8==7.1.1"]
