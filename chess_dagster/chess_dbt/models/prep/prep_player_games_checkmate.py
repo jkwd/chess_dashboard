@@ -51,7 +51,7 @@ def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
 
 
 def model(dbt, session):
-    df = dbt.ref("dbt_prep_player_games").to_df()
+    df = dbt.ref("prep_player_games").to_df()
 
     df['checkmate_pieces'] = df[['fen', 'player_color', 'player_result', 'opponent_result']].apply(
         lambda x: get_checkmate_pieces(x.fen,

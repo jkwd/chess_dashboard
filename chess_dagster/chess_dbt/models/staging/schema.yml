@@ -2,6 +2,8 @@ version: 2
 
 models:
   - name: stg_player_games
+    config:
+      pre_hook: "SET TimeZone = 'UTC';"
     columns:
     - name: end_time
     - name: url

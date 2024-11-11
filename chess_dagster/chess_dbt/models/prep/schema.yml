@@ -1,9 +1,11 @@
 version: 2
 
 models:
-  - name: dbt_prep_player_games
+  - name: prep_player_games
     description: >
       This model is a transformation of the raw player games data.
+    config:
+      pre_hook: "SET TimeZone = 'UTC';"
     columns:
       - name: end_time
       - name: url
@@ -59,21 +61,76 @@ models:
       - name: time_played_interval
       - name: time_played_seconds
   
-  - name: test
-    config:
-      materialized: table
-      tags: ['python']
-  
   - name: prep_player_games_checkmate
     config:
       materialized: table
       tags: ['python']
       packages:
         - chess
+      columns:
+      - name: end_time
+      - name: url
+      - name: pgn
+      - name: time_control
+      - name: rated
+      - name: tcn
+      - name: uuid
+      - name: initial_setup
+      - name: fen
+      - name: time_class
+      - name: rules
+      - name: white__rating
+      - name: white__result
+      - name: white__aid
+      - name: white__username
+      - name: white__uuid
+      - name: black__rating
+      - name: black__result
+      - name: black__aid
+      - name: black__username
+      - name: black__uuid
+      - name: eco
+      - name: _dlt_load_id
+      - name: _dlt_id
+      - name: accuracies_white
+      - name: accuracies_black
+      - name: time_control_base
+      - name: time_control_add_seconds
+      - name: pgn_moves
+      - name: pgn_move_extract
+      - name: pgn_clock_extract
+      - name: eco
+      - name: eco_url
+      - name: eco_name
+      - name: player_color
+      - name: player_rating
+      - name: player_result
+      - name: opponent_rating
+      - name: opponent_result
+      - name: is_stronger_opponent
+      - name: player_wdl
+        tests:
+          - accepted_values:
+              values: ['win', 'draw', 'lose']
+      - name: player_wdl_reason
+      - name: game_start_date
+      - name: game_start_time
+      - name: game_start_timestamp
+        tests:
+          - not_null
+      - name: game_end_timestamp
+      - name: time_played_interval
+      - name: time_played_seconds
+      - name: checkmate_pieces
+        tests:
+          - name: assert_checkmate_valid
+          - name: assert_no_checkmate_valid
   
-  - name: dbt_prep_game_moves
+  - name: prep_game_moves
     description: >
       This model is a transformation of the raw player games data.
+    config:
+      pre_hook: "SET TimeZone = 'UTC';"
     columns:
       - name: id
         tests:

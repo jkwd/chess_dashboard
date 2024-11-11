@@ -6,7 +6,7 @@ with player_games as (
     , time_control_add_seconds
     , pgn_move_extract
     , pgn_clock_extract
-    from {{ref('dbt_prep_player_games')}}
+    from {{ref('prep_player_games')}}
 )
 , unnest as (
     select
