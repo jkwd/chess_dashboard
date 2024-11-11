@@ -1,5 +1,7 @@
 FROM python:3.10-slim
 
+ENV PYTHONUNBUFFERED=1
+
 # Create directory for dbt profile
 RUN mkdir -p /root/.dbt
 
@@ -9,7 +11,7 @@ COPY profiles.yml /root/.dbt/profiles.yml
 # Set working directory for DAGSTER_HOME
 RUN mkdir -p /opt/dagster/app
 
-ENV DAGSTER_HOME=/opt/app/dagster
+ENV DAGSTER_HOME=/opt/dagster/app
 
 WORKDIR $DAGSTER_HOME
 
