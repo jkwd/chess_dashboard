@@ -1,7 +1,5 @@
 name: 'chess_dbt'
-
-config-version: 2
-version: '0.1'
+version: '1.0.0'
 
 profile: 'chess_dbt'
 
@@ -20,12 +18,11 @@ clean-targets:
 require-dbt-version: [">=1.0.0", "<2.0.0"]
 
 vars:
-  username: "{{env_var('CHESS_USERNAME','johnnywhoopp')}}"
+  username: "{{env_var('CHESS_USERNAME')}}"
 
 
 models:
   chess_dbt:
-    +pre-hook: SET TimeZone = 'UTC';
     materialized: table
     staging:
       materialized: view
