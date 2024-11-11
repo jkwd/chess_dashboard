@@ -14,8 +14,7 @@ with player_games as (
         *
         , unnest(pgn_move_extract) as move_unnest
         , split(move_unnest, ' ')[1] as color_move_index_raw
-        , cast(regexp_replace(color_move_index_raw, '\.+', '') as int)
-            as color_move_index
+        , regexp_replace(color_move_index_raw, '\.+', '') as color_move_index
         , generate_subscripts(pgn_move_extract, 1) as game_move_index
         , unnest(pgn_clock_extract) as clock_unnest
         , if(regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White')
