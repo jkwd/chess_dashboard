@@ -14,6 +14,7 @@ duckdb_resource = DuckDBResource(database=CHESS_DB)
 dbt_project_dir = Path(__file__).joinpath("..", "..", "chess_dbt").resolve()
 dbt_resource = DbtCliResource(project_dir=os.fspath(dbt_project_dir),
                               profiles_dir=os.path.join(HOME_DIR, ".dbt"),
+                              global_config_flags=["--log-format-file", "text"],
                               target="prod")
 
 # If DAGSTER_DBT_PARSE_PROJECT_ON_LOAD is set, a manifest will be created at run time.
