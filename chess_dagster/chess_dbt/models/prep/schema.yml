@@ -58,11 +58,19 @@ models:
       - name: game_end_timestamp
       - name: time_played_interval
       - name: time_played_seconds
-
+  
+  - name: test
+    config:
+      materialized: table
+      tags: ['python']
+  
   - name: prep_player_games_checkmate
     config:
+      materialized: table
+      tags: ['python']
       packages:
         - chess
+  
   - name: dbt_prep_game_moves
     description: >
       This model is a transformation of the raw player games data.
