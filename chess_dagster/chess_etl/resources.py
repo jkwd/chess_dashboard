@@ -1,15 +1,13 @@
 from dagster_embedded_elt.dlt import DagsterDltResource
-from dagster_duckdb import DuckDBResource
 from dagster_dbt import DbtCliResource
 
-from chess_etl.assets.constants import CHESS_DB
+from chess_etl.constants import CHESS_DB
 from pathlib import Path
 import os
 
 HOME_DIR = os.getenv("HOME")
 
 dlt_resource = DagsterDltResource()
-duckdb_resource = DuckDBResource(database=CHESS_DB)
 
 dbt_project_dir = Path(__file__).joinpath("..", "..", "chess_dbt").resolve()
 dbt_resource = DbtCliResource(project_dir=os.fspath(dbt_project_dir),
