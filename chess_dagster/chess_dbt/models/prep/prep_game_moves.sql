@@ -12,13 +12,14 @@ with player_games as (
 , unnest as (
     select
         *
-        , unnest(pgn_move_extract) as move_unnest
-        , split(move_unnest, ' ')[1] as color_move_index_raw
-        , regexp_replace(color_move_index_raw, '\.+', '') as color_move_index
         , generate_subscripts(pgn_move_extract, 1) as game_move_index
+        , unnest(pgn_move_extract) as move_unnest
         , unnest(pgn_clock_extract) as clock_unnest
-        , if(regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White')
-            as color_move
+        , split(move_unnest, ' ')[1] as color_move_index_raw
+        , regexp_replace(color_move_index_raw, '\.+', '') as color_move_index_str
+        , if(
+            regexp_matches(color_move_index_raw, '\.\.\.'), 'Black', 'White'
+        ) as color_move
         , split(move_unnest, ' ')[2] as game_move
 
         -- This is the clock after the addition of time
@@ -27,8 +28,7 @@ with player_games as (
         ) as clock_interval_post_move
 
         -- To get the clock before the addition of time
-        , clock_interval_post_move
-        - time_control_add_seconds as clock_interval_move
+        , clock_interval_post_move - time_control_add_seconds as clock_interval_move
 
     from player_games
 )
@@ -41,7 +41,7 @@ with player_games as (
         , time_control_add_seconds
         , game_move_index
         , color_move
-        , color_move_index
+        , cast(color_move_index_str as int) as color_move_index
         , game_move
         , clock_interval_move
         , clock_interval_post_move
