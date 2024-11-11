@@ -32,8 +32,11 @@ jobs:
     - name: Build the docker compose images
       run: make build
 
-    - name: Run lint
-      run: make lint
+    - name: Run python lint
+      run: make lint-python
+    
+    - name: Run SQL lint
+      run: make lint-sql
 
     - name: Run Test
       run: make test

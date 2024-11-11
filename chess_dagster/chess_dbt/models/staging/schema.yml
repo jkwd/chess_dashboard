@@ -13,7 +13,7 @@ models:
         - not_null
     - name: rated
     - name: tcn
-    - name: uuid
+    - name: game_uuid
       tests:
         - unique
         - not_null

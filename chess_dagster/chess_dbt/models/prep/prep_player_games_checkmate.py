@@ -1,5 +1,6 @@
 import chess
 
+
 def get_checkmate_pieces(fen, player_color, player_result, opponent_result):
     if not (player_result == 'checkmated' or opponent_result == 'checkmated'):
         return []
@@ -55,9 +56,9 @@ def model(dbt, session):
 
     df['checkmate_pieces'] = df[['fen', 'player_color', 'player_result', 'opponent_result']].apply(
         lambda x: get_checkmate_pieces(x.fen,
-                                        x.player_color,
-                                        x.player_result,
-                                        x.opponent_result), axis=1
+                                       x.player_color,
+                                       x.player_result,
+                                       x.opponent_result), axis=1
     )
-    
+
     return df

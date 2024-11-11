@@ -15,9 +15,9 @@ setup(
         "dlt[duckdb]==1.3.0",
         "dbt-duckdb==1.9.0",
         "python-chess==1.2.0",
-        "pandas"
+        "pandas==2.2.3"
     ],
     extras_require={
-        "dev": ["pytest==8.3.2", "jupyter==1.0.0", "flake8==7.1.1"]
+        "dev": ["pytest==8.3.2", "jupyter==1.0.0", "flake8==7.1.1", "sqlfluff==3.2.5"]
     },
 )
