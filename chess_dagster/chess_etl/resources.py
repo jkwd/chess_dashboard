@@ -1,7 +1,6 @@
 from dagster_embedded_elt.dlt import DagsterDltResource
 from dagster_dbt import DbtCliResource
 
-from chess_etl.constants import CHESS_DB
 from pathlib import Path
 import os
 
