@@ -18,6 +18,6 @@ setup(
         "pandas==2.2.3"
     ],
     extras_require={
-        "dev": ["pytest==8.3.2", "jupyter==1.0.0", "flake8==7.1.1", "sqlfluff==3.2.5"]
+        "dev": ["pytest==8.3.2", "jupyter==1.0.0", "ruff==0.7.3", "sqlfluff==3.2.5"]
     },
 )

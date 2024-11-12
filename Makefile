@@ -8,7 +8,7 @@ down:
 	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml down
 
 lint-python:
-	docker compose run --rm chess_dagster_daemon flake8 chess_etl chess_etl_tests chess_dbt/models
+	docker compose run --rm chess_dagster_daemon ruff check chess_etl chess_etl_tests chess_dbt/models
 
 lint-sql:
 	docker compose run --rm chess_dagster_daemon sqlfluff lint --dialect duckdb chess_dbt/models chess_dbt/tests
