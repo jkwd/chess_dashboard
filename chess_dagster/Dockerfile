@@ -19,7 +19,7 @@ WORKDIR $DAGSTER_HOME
 COPY . .
 
 # Install dependencies
-RUN pip install -e ".[dev]"
+RUN pip install .[dev]
 
 # Expose port 3000 for UI
 EXPOSE 3000
