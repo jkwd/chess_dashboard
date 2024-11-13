@@ -38,6 +38,9 @@ jobs:
     - name: Run SQL lint
       run: make lint-sql
 
-    - name: Run Test
-      run: make test
+    - name: Run pytest
+      run: make pytest
+    
+    - name: Run dbt unit test
+      run: make dbt-unit-test
       

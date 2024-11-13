@@ -16,8 +16,11 @@ lint-sql:
 fix-sql:
 	docker compose run --rm chess_dagster_daemon sqlfluff fix --dialect duckdb chess_dbt/models chess_dbt/tests
 
-test:
+pytest:
 	docker compose run --rm chess_dagster_daemon pytest chess_etl_tests
+
+dbt-unit-test:
+	docker compose run --rm chess_dagster_daemon bash -c "cd chess_dbt && dbt test --target prod --select test_type:unit"
 
 clean:
 	docker image rm chess_dashboard-chess_dagster_webserver
