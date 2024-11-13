@@ -4,8 +4,8 @@ unit_tests:
     model: prep_game_moves
     given:
       - input: ref('prep_player_games')
-        format: csv
-        fixture: prep_game_moves_input
+        format: sql
+        fixture: prep_game_moves_sql_input
     expect:
       format: csv
       fixture: prep_game_moves_expect
