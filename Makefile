@@ -20,7 +20,7 @@ pytest:
 	docker compose run --rm chess_dagster_daemon pytest chess_etl_tests
 
 dbt-unit-test:
-	docker compose run --rm chess_dagster_daemon bash -c "cd chess_dbt && && dbt docs generate && dbt test --target prod --select test_type:unit"
+	docker compose run --rm chess_dagster_daemon bash -c "cd chess_dbt && && dbt docs generate --target prod && dbt test --target prod --select test_type:unit"
 
 clean:
 	docker image rm chess_dashboard-chess_dagster_webserver
