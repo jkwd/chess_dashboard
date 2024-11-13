@@ -88,7 +88,7 @@ select
     , cast(prev_clock_interval as double) as prev_clock_interval
     , cast(clock_interval_move as double) as clock_interval_move
     , cast(clock_interval_post_move as double) as clock_interval_post_move
-    , round(cast(move_time_seconds as double),1) as move_time_seconds
+    , round(cast(move_time_seconds as double), 1) as move_time_seconds
     , concat(cast(game_uuid as string), '_', cast(game_move_index as string))
         as id
 from final
