@@ -89,6 +89,7 @@ select
     , player_total_move_time
     , player_num_moves
     , opponent_rating
+    , floor(opponent_rating/100) * 100 as opponent_rating_bin
     , opponent_result
     , opponent_total_move_time
     , opponent_num_moves
