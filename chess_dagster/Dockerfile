@@ -2,6 +2,9 @@ FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1
 
+# Download stockfish
+# RUN apt-get update && apt-get install --no-install-recommends --assume-yes stockfish
+
 # Create directory for dbt profile
 RUN mkdir -p /root/.dbt
 
