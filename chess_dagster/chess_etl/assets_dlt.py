@@ -1,5 +1,5 @@
 import os
-from chess_etl.constants import CHESS_DB, SCHEMA_RAW
+from chess_etl.constants import SCHEMA_RAW
 
 from dagster import AssetExecutionContext
 from dagster_embedded_elt.dlt import DagsterDltResource, dlt_assets
@@ -16,7 +16,7 @@ from chess_dlt.chess import source
     ),
     dlt_pipeline=pipeline(
         pipeline_name="chess_pipeline",
-        destination=destinations.duckdb(CHESS_DB),
+        destination=destinations.duckdb(os.getenv('CHESS_DB')),
         dataset_name=SCHEMA_RAW,
     ),
     name="chess",
