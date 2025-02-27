@@ -126,6 +126,13 @@ models:
           - name: assert_checkmate_valid
           - name: assert_no_checkmate_valid
   
+  - name: prep_game_moves_py
+    config:
+      materialized: table
+      tags: ['python']
+      packages:
+        - chess
+
   - name: prep_game_moves
     description: >
       This model is a transformation of the raw player games data.
