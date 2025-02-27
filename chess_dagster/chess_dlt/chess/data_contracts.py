@@ -31,7 +31,6 @@ class PlayersGamesBase(BaseModel):
     rules: str
     white: PlayerColor
     black: PlayerColor
-    eco: str
 
 class PlayersGames(PlayersGamesBase):
   dlt_config: ClassVar[DltConfig] = {"skip_nested_types": True}
