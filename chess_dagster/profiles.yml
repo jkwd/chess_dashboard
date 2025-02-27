@@ -7,5 +7,5 @@ chess_dbt:
       threads: 1
     prod:
       type: duckdb
-      path: /data/chess.duckdb
+      path: "{{ env_var('CHESS_DB') }}"
       threads: 4
