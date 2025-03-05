@@ -4,6 +4,9 @@ build:
 up:
 	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml up -d
 
+up-dashboard:
+	docker compose -f docker-compose-dashboard.yml up -d
+
 down:
 	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml down
 
