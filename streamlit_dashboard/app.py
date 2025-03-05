@@ -169,8 +169,8 @@ with row_3b:
     st.altair_chart(bar, use_container_width=True)
     
 # Row 4
-move_num = st.slider('1st N moves', min_value=1, max_value=8, value=5)
-st.subheader(f'Most played starting {move_num} moves')
+move_num = st.slider('1st N moves', min_value=1, max_value=6, value=5)
+st.header(f'Most played starting {move_num} moves')
 
 df_starting_moves = conn.sql(f"""
     with cte as (
@@ -193,43 +193,52 @@ df_starting_moves = conn.sql(f"""
 
 if 'White' in player_color:
     df_starting_moves_white = df_starting_moves[df_starting_moves['player_color'] == 'White']
-    row_4a, row_4b, row_4c, row_4d = st.columns(4)
-    
-    with row_4a:
-        st.subheader('Most opening moves: White')
-        st.bar_chart(data=df_starting_moves_white, x='starting_moves', y='wdl_num_games', color='player_wdl')
-        
-    
-    with row_4b:
-        st.subheader('Win/draw/lose percentage: White')
-        st.bar_chart(data=df_starting_moves_white, x='starting_moves', y='wdl_num_games', color='player_wdl', stack='normalize')
-        
-    with row_4c:
-        st.subheader('Best opening: White')
-        # Get highest win %
-        df_winning_opening_white = conn.sql(f"""
-            select max_by(starting_moves, perc) as winning_opening
-            from df_starting_moves_white
-            where player_wdl = 'win'
+    df_winning_opening_white = conn.sql(f"""
+            select
+            *
+            , row_number() over(order by perc desc) as win_order
+            from df_starting_moves
+            where player_color = 'White'
+            and player_wdl = 'win'
+            qualify win_order <= 3
         """).df()
-        white_winning_opening = df_winning_opening_white['winning_opening'].iloc[0]
-        
-        pgn = io.StringIO(white_winning_opening)
-        game = chess.pgn.read_game(pgn)
-        board = game.end().board()
-        st.write(chess.svg.board(board), unsafe_allow_html=True)
     
-    with row_4d:
-        st.subheader('Worst opening: White')
-        # Get highest win %
-        df_losing_opening_white = conn.sql(f"""
-            select max_by(starting_moves, perc) as losing_opening
-            from df_starting_moves_white
-            where player_wdl = 'lose'
+    st.subheader('Best opening moves: White')
+    for i, col in enumerate(st.columns(3)):
+    
+        with col:
+            opening = df_winning_opening_white['starting_moves'].iloc[i]
+            perc = df_winning_opening_white['perc'].iloc[i].round(2)
+            
+            pgn = io.StringIO(opening)
+            game = chess.pgn.read_game(pgn)
+            board = game.end().board()
+            
+            st.write(f'Win {perc}%')
+            st.write(chess.svg.board(board), unsafe_allow_html=True)
+    
+
+if 'Black' in player_color:
+    df_winning_opening_black = conn.sql(f"""
+            select
+            *
+            , row_number() over(order by perc desc) as win_order
+            from df_starting_moves
+            where player_color = 'Black'
+            and player_wdl = 'win'
+            qualify win_order <= 3
         """).df()
-        white_losing_opening = df_losing_opening_white['losing_opening'].iloc[0]
-        
-        pgn = io.StringIO(white_losing_opening)
-        game = chess.pgn.read_game(pgn)
-        board = game.end().board()
-        st.write(chess.svg.board(board), unsafe_allow_html=True)
+    
+    st.subheader('Best opening moves: Black')
+    for i, col in enumerate(st.columns(3)):
+    
+        with col:
+            opening = df_winning_opening_black['starting_moves'].iloc[i]
+            perc = df_winning_opening_black['perc'].iloc[i].round(2)
+            
+            pgn = io.StringIO(opening)
+            game = chess.pgn.read_game(pgn)
+            board = game.end().board()
+            
+            st.write(f'Win {perc}%')
+            st.write(chess.svg.board(board), unsafe_allow_html=True)
