@@ -1,3 +1,5 @@
 streamlit
 duckdb
 pandas
+python-chess
+stchess

@@ -5,6 +5,10 @@ import os
 from datetime import timedelta
 import altair as alt
 
+import io
+import chess
+import chess.pgn
+
 st.set_page_config(layout="wide")
 
 # Connect to the database
@@ -166,42 +170,66 @@ with row_3b:
     
 # Row 4
 move_num = st.slider('1st N moves', min_value=1, max_value=8, value=5)
+st.subheader(f'Most played starting {move_num} moves')
 
-row_4a, row_4b = st.columns(2)
-with row_4a:
-    df_starting_moves = conn.sql(f"""
+df_starting_moves = conn.sql(f"""
+    with cte as (
         SELECT
         player_color
-        , list_reduce(pgn_move_extract[1: {move_num}],  (s, x) -> s || ' ' || x) as starting_moves
-        , count(1) as num_games
-        , row_number() over (partition by player_color order by count(1) desc) as rn
-        FROM df
-        group by player_color, starting_moves
-        qualify rn <= 5
-        order by player_color, num_games desc
-    """).df()
-    st.bar_chart(data=df_starting_moves, x='starting_moves', y='num_games', color='player_color', stack=False)
-
-with row_4b:
-    df_starting_moves_perc = conn.sql(f"""
-        SELECT
-        player_color
-        , list_reduce(pgn_move_extract[1: {move_num}],  (s, x) -> s || ' ' || x) as starting_moves
         , player_wdl
-        , count(1) as num_games
-        , 100.0 * count(1) / sum(count(1)) over(partition by player_color, starting_moves) as win_perc
-        FROM df
-        where starting_moves in (select starting_moves from df_starting_moves)
-        group by player_color, starting_moves, player_wdl
-    """).df()
-    
-    bar = alt.Chart(df_starting_moves_perc).mark_bar().encode(
-        column="player_color",
-        x="starting_moves",
-        y="win_perc",
-        color="player_wdl",
+        , list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) as starting_moves
+        , count(1)                                                     as wdl_num_games
+        , sum(count(1))                                                   over(partition by player_color, starting_moves) as num_games
+        FROM main.games
+        group by player_color, player_wdl, starting_moves
     )
-    st.altair_chart(bar)
+    select
+        *
+        , dense_rank() over(partition by player_color order by num_games desc) as rn
+        , 100.0 * wdl_num_games / num_games as perc
+    from cte
+    qualify rn <= 5
+""").df()
+
+if 'White' in player_color:
+    df_starting_moves_white = df_starting_moves[df_starting_moves['player_color'] == 'White']
+    row_4a, row_4b, row_4c, row_4d = st.columns(4)
     
+    with row_4a:
+        st.subheader('Most opening moves: White')
+        st.bar_chart(data=df_starting_moves_white, x='starting_moves', y='wdl_num_games', color='player_wdl')
+        
     
+    with row_4b:
+        st.subheader('Win/draw/lose percentage: White')
+        st.bar_chart(data=df_starting_moves_white, x='starting_moves', y='wdl_num_games', color='player_wdl', stack='normalize')
+        
+    with row_4c:
+        st.subheader('Best opening: White')
+        # Get highest win %
+        df_winning_opening_white = conn.sql(f"""
+            select max_by(starting_moves, perc) as winning_opening
+            from df_starting_moves_white
+            where player_wdl = 'win'
+        """).df()
+        white_winning_opening = df_winning_opening_white['winning_opening'].iloc[0]
+        
+        pgn = io.StringIO(white_winning_opening)
+        game = chess.pgn.read_game(pgn)
+        board = game.end().board()
+        st.write(chess.svg.board(board), unsafe_allow_html=True)
     
+    with row_4d:
+        st.subheader('Worst opening: White')
+        # Get highest win %
+        df_losing_opening_white = conn.sql(f"""
+            select max_by(starting_moves, perc) as losing_opening
+            from df_starting_moves_white
+            where player_wdl = 'lose'
+        """).df()
+        white_losing_opening = df_losing_opening_white['losing_opening'].iloc[0]
+        
+        pgn = io.StringIO(white_losing_opening)
+        game = chess.pgn.read_game(pgn)
+        board = game.end().board()
+        st.write(chess.svg.board(board), unsafe_allow_html=True)
