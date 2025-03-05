@@ -192,7 +192,6 @@ df_starting_moves = conn.sql(f"""
 """).df()
 
 if 'White' in player_color:
-    df_starting_moves_white = df_starting_moves[df_starting_moves['player_color'] == 'White']
     df_winning_opening_white = conn.sql(f"""
             select
             *
@@ -215,6 +214,30 @@ if 'White' in player_color:
             board = game.end().board()
             
             st.write(f'Win {perc}%')
+            st.write(chess.svg.board(board), unsafe_allow_html=True)
+
+    df_losing_opening_white = conn.sql(f"""
+            select
+            *
+            , row_number() over(order by perc desc) as lose_order
+            from df_starting_moves
+            where player_color = 'White'
+            and player_wdl = 'lose'
+            qualify lose_order <= 3
+        """).df()
+    
+    st.subheader('Worst opening moves: White')
+    for i, col in enumerate(st.columns(3)):
+    
+        with col:
+            opening = df_losing_opening_white['starting_moves'].iloc[i]
+            perc = df_losing_opening_white['perc'].iloc[i].round(2)
+            
+            pgn = io.StringIO(opening)
+            game = chess.pgn.read_game(pgn)
+            board = game.end().board()
+            
+            st.write(f'Lose {perc}%')
             st.write(chess.svg.board(board), unsafe_allow_html=True)
     
 
@@ -241,4 +264,29 @@ if 'Black' in player_color:
             board = game.end().board()
             
             st.write(f'Win {perc}%')
-            st.write(chess.svg.board(board), unsafe_allow_html=True)
+            st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
+    
+    
+    df_losing_opening_black = conn.sql(f"""
+            select
+            *
+            , row_number() over(order by perc desc) as lose_order
+            from df_starting_moves
+            where player_color = 'Black'
+            and player_wdl = 'lose'
+            qualify lose_order <= 3
+        """).df()
+    
+    st.subheader('Worst opening moves: Black')
+    for i, col in enumerate(st.columns(3)):
+    
+        with col:
+            opening = df_losing_opening_black['starting_moves'].iloc[i]
+            perc = df_losing_opening_black['perc'].iloc[i].round(2)
+            
+            pgn = io.StringIO(opening)
+            game = chess.pgn.read_game(pgn)
+            board = game.end().board()
+            
+            st.write(f'Win {perc}%')
+            st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
