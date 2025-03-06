@@ -250,6 +250,7 @@ if 'White' in player_color:
                 
                 st.write(f'Win {perc}%')
                 st.write(chess.svg.board(board), unsafe_allow_html=True)
+                st.button('List Games', key=opening)
         else:
             with col:
                 opening = df_losing_opening_white['starting_moves'].iloc[3-i]
@@ -308,3 +309,6 @@ if 'Black' in player_color:
                 
                 st.write(f'Lose {perc}%')
                 st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
+
+# Close connection
+conn.close()                
