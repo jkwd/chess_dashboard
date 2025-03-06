@@ -205,7 +205,7 @@ df_starting_moves = conn.sql(f"""
         , list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) as starting_moves
         , count(1) as wdl_num_games
         , sum(count(1)) over(partition by player_color, starting_moves) as num_games
-        FROM main.games
+        FROM df
         group by player_color, player_wdl, starting_moves
     )
     select
@@ -250,7 +250,25 @@ if 'White' in player_color:
                 
                 st.write(f'Win {perc}%')
                 st.write(chess.svg.board(board), unsafe_allow_html=True)
-                st.button('List Games', key=opening)
+                if st.button('List Games', key=f'White_{i}'):
+                    df_display = conn.sql(f"""
+                        select
+                        game_analysis_url
+                        from df
+                        where player_color = 'White'
+                        and player_wdl = 'win'
+                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        limit 5
+                    """).df()
+
+                    st.dataframe(df_display, 
+                                 column_config={
+                                     'game_analysis_url': st.column_config.LinkColumn(
+                                        "URL", display_text="Game URL")
+                                     }
+                                 )
+                    
+                
         else:
             with col:
                 opening = df_losing_opening_white['starting_moves'].iloc[3-i]
@@ -262,6 +280,23 @@ if 'White' in player_color:
                 
                 st.write(f'Lose {perc}%')
                 st.write(chess.svg.board(board), unsafe_allow_html=True)
+                if st.button('List Games', key=f'White_{i}'):
+                    df_display = conn.sql(f"""
+                        select
+                        game_analysis_url
+                        from df
+                        where player_color = 'White'
+                        and player_wdl = 'lose'
+                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        limit 5
+                    """).df()
+
+                    st.dataframe(df_display, 
+                                 column_config={
+                                     'game_analysis_url': st.column_config.LinkColumn(
+                                        "URL", display_text="Game URL")
+                                     }
+                                 )
     
 
 if 'Black' in player_color:
@@ -298,6 +333,23 @@ if 'Black' in player_color:
                 
                 st.write(f'Win {perc}%')
                 st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
+                if st.button('List Games', key=f'Black_{i}'):
+                    df_display = conn.sql(f"""
+                        select
+                        game_analysis_url
+                        from df
+                        where player_color = 'Black'
+                        and player_wdl = 'win'
+                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        limit 5
+                    """).df()
+
+                    st.dataframe(df_display, 
+                                 column_config={
+                                     'game_analysis_url': st.column_config.LinkColumn(
+                                        "URL", display_text="Game URL")
+                                     }
+                                 )
         else:
             with col:
                 opening = df_losing_opening_black['starting_moves'].iloc[3-i]
@@ -309,6 +361,23 @@ if 'Black' in player_color:
                 
                 st.write(f'Lose {perc}%')
                 st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
+                if st.button('List Games', key=f'Black_{i}'):
+                    df_display = conn.sql(f"""
+                        select
+                        game_analysis_url
+                        from df
+                        where player_color = 'Black'
+                        and player_wdl = 'lose'
+                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        limit 5
+                    """).df()
+
+                    st.dataframe(df_display, 
+                                 column_config={
+                                     'game_analysis_url': st.column_config.LinkColumn(
+                                        "URL", display_text="Game URL")
+                                     }
+                                 )
 
 # Close connection
 conn.close()                
