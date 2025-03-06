@@ -250,15 +250,18 @@ if 'White' in player_color:
                 
                 st.write(f'Win {perc}%')
                 st.write(chess.svg.board(board), unsafe_allow_html=True)
-                if st.button('List Games', key=f'White_{i}'):
+                if st.toggle('List Games', key=f'White_{i}'):
                     df_display = conn.sql(f"""
-                        select
-                        game_analysis_url
-                        from df
-                        where player_color = 'White'
-                        and player_wdl = 'win'
-                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
-                        limit 5
+                        select *
+                        from (
+                            select
+                            game_analysis_url
+                            from df
+                            where player_color = 'White'
+                            and player_wdl = 'win'
+                            and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        )
+                        using sample 5 rows;
                     """).df()
 
                     st.dataframe(df_display, 
@@ -280,15 +283,18 @@ if 'White' in player_color:
                 
                 st.write(f'Lose {perc}%')
                 st.write(chess.svg.board(board), unsafe_allow_html=True)
-                if st.button('List Games', key=f'White_{i}'):
+                if st.toggle('List Games', key=f'White_{i}'):
                     df_display = conn.sql(f"""
-                        select
-                        game_analysis_url
-                        from df
-                        where player_color = 'White'
-                        and player_wdl = 'lose'
-                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
-                        limit 5
+                        select *
+                        from (
+                            select
+                            game_analysis_url
+                            from df
+                            where player_color = 'White'
+                            and player_wdl = 'lose'
+                            and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        )
+                        using sample 5 rows;
                     """).df()
 
                     st.dataframe(df_display, 
@@ -333,15 +339,18 @@ if 'Black' in player_color:
                 
                 st.write(f'Win {perc}%')
                 st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
-                if st.button('List Games', key=f'Black_{i}'):
+                if st.toggle('List Games', key=f'Black_{i}'):
                     df_display = conn.sql(f"""
-                        select
-                        game_analysis_url
-                        from df
-                        where player_color = 'Black'
-                        and player_wdl = 'win'
-                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
-                        limit 5
+                        select *
+                        from (
+                            select
+                            game_analysis_url
+                            from df
+                            where player_color = 'Black'
+                            and player_wdl = 'win'
+                            and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        )
+                        using sample 5 rows;
                     """).df()
 
                     st.dataframe(df_display, 
@@ -361,15 +370,18 @@ if 'Black' in player_color:
                 
                 st.write(f'Lose {perc}%')
                 st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
-                if st.button('List Games', key=f'Black_{i}'):
+                if st.toggle('List Games', key=f'Black_{i}'):
                     df_display = conn.sql(f"""
-                        select
-                        game_analysis_url
-                        from df
-                        where player_color = 'Black'
-                        and player_wdl = 'lose'
-                        and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
-                        limit 5
+                        select *
+                        from (
+                            select
+                            game_analysis_url
+                            from df
+                            where player_color = 'Black'
+                            and player_wdl = 'lose'
+                            and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
+                        )
+                        using sample 5 rows;
                     """).df()
 
                     st.dataframe(df_display, 
