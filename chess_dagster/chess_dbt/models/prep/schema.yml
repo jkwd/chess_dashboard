@@ -38,6 +38,8 @@ models:
       - name: pgn_moves
       - name: pgn_move_extract
       - name: pgn_clock_extract
+      - name: pgn_move_extract_string
+      - name: game_analysis_url
       - name: eco
       - name: eco_url
       - name: eco_name

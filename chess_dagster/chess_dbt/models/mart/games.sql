@@ -1,7 +1,7 @@
 with game_moves_pivot as (
-    pivot {{ ref('prep_game_moves') }}
+    pivot {{ ref('prep_game_moves_py') }}
     on color_move
-    using sum(move_time_seconds) as total_move_time, count(*) as num_moves
+    using sum(move_time_seconds) as total_move_time, count(1) as num_moves
     group by game_uuid
 )
 
@@ -54,6 +54,7 @@ select
     , rules
     , time_class
     , game_mode
+    , game_analysis_url
 
     -- TIME
     , time_control

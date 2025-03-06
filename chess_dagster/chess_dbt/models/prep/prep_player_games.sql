@@ -30,6 +30,8 @@ with player_games as (
         , regexp_split_to_array(pgn, '\n\n')[2] as pgn_moves
         , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+') as pgn_move_extract
         , regexp_extract_all(pgn_moves, '{\[%clk \S+\]}') as pgn_clock_extract
+        , list_reduce(pgn_move_extract, (s, x) -> s || ' ' || x) as pgn_move_extract_string
+        , 'https://lichess.org/analysis/pgn/' || pgn_move_extract_string as game_analysis_url
 
         -- PGN ECO details
         , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco

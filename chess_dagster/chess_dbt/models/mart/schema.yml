@@ -10,6 +10,8 @@ models:
       - name: rated
       - name: rules
       - name: time_class
+      - name: game_mode
+      - name: game_analysis_url
       - name: time_control
       - name: time_control_base
       - name: time_control_add_seconds
