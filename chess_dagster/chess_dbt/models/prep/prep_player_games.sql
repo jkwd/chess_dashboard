@@ -26,18 +26,6 @@ with player_games as (
             else time_class || ' ' || time_control
         end as game_mode
 
-        -- PGN details
-        , regexp_split_to_array(pgn, '\n\n')[2] as pgn_moves
-        , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+') as pgn_move_extract
-        , regexp_extract_all(pgn_moves, '{\[%clk \S+\]}') as pgn_clock_extract
-        , list_reduce(pgn_move_extract, (s, x) -> s || ' ' || x) as pgn_move_extract_string
-        , 'https://lichess.org/analysis/pgn/' || pgn_move_extract_string as game_analysis_url
-
-        -- PGN ECO details
-        , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco
-        , regexp_extract(pgn, '(ECOUrl )"(.*)"', 2) as eco_url
-        , replace(eco_url, 'https://www.chess.com/openings/', '') as eco_name
-
         -- PLAYER details
         , if(lower(white__username) = '{{ var("username") }}', 'White', 'Black')
             as player_color
@@ -62,6 +50,18 @@ with player_games as (
         end as player_wdl
         , if(player_result = 'win', opponent_result, player_result)
             as player_wdl_reason
+
+        -- PGN details
+        , regexp_split_to_array(pgn, '\n\n')[2] as pgn_moves
+        , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+') as pgn_move_extract
+        , regexp_extract_all(pgn_moves, '{\[%clk \S+\]}') as pgn_clock_extract
+        , list_reduce(pgn_move_extract, (s, x) -> s || ' ' || x) as pgn_move_extract_string
+        , 'https://lichess.org/analysis/pgn/' || replace(pgn_move_extract_string, ' ', '%20') || '?color=' || lower(player_color) as game_analysis_url
+
+        -- PGN ECO details
+        , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco
+        , regexp_extract(pgn, '(ECOUrl )"(.*)"', 2) as eco_url
+        , replace(eco_url, 'https://www.chess.com/openings/', '') as eco_name
 
         -- GAME TIME DETAILS
         , replace(regexp_extract(pgn, '(UTCDate )"(.*)"', 2), '.', '-')::date
