@@ -5,6 +5,22 @@ with game_moves_pivot as (
     group by game_uuid
 )
 
+, game_moves as (
+    select
+    game_uuid
+    , game_move_index
+    , game_phase
+    from {{ ref('prep_game_moves_py') }}
+)
+
+, ended_game_phase as (
+    select
+    game_uuid
+    , max_by(game_phase, game_move_index) as ended_game_phase
+    from game_moves
+    group by game_uuid
+)
+
 , player_games as (
     select *
     from {{ ref('prep_player_games_checkmate') }}
@@ -17,10 +33,14 @@ with game_moves_pivot as (
         , gm.white_num_moves
         , gm.black_total_move_time
         , gm.black_num_moves
+        , egp.ended_game_phase
     from player_games as pg
 
     left join game_moves_pivot as gm
         on pg.game_uuid = gm.game_uuid
+
+    left join ended_game_phase as egp
+        on pg.game_uuid = egp.game_uuid
 )
 
 , final as (
@@ -109,6 +129,7 @@ select
     , eco_url
     , eco_name
     , checkmate_pieces
+    , ended_game_phase
 
     -- MISC
     , tcn

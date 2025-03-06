@@ -56,7 +56,7 @@ with player_games as (
         , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+') as pgn_move_extract
         , regexp_extract_all(pgn_moves, '{\[%clk \S+\]}') as pgn_clock_extract
         , list_reduce(pgn_move_extract, (s, x) -> s || ' ' || x) as pgn_move_extract_string
-        , 'https://lichess.org/analysis/pgn/' || replace(pgn_move_extract_string, ' ', '%20') || '?color=' || lower(player_color) as game_analysis_url
+        , 'https://lichess.org/analysis/pgn/' || replace(replace(pgn_move_extract_string, ' ', '%20'), '#', '') || '?color=' || lower(player_color) as game_analysis_url
 
         -- PGN ECO details
         , regexp_extract(pgn, '(ECO )"(.*)"', 2) as eco
