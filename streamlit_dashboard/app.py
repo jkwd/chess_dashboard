@@ -169,8 +169,31 @@ with row_3b:
     st.altair_chart(bar, use_container_width=True)
     
 
-
 # Row 4
+row_4a, row_4b = st.columns(2)
+df_checkmate_pieces = conn.sql("""
+        select
+        player_wdl
+        , checkmate_pieces
+        , count(1) as num_games
+        from df
+        where player_wdl_reason = 'checkmated'
+        group by all
+        order by player_wdl, num_games desc;
+    """).df()
+
+with row_4a:
+    st.subheader('Winning checkmate Pieces')
+    df_checkmate_pieces_win = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'win']
+    st.dataframe(df_checkmate_pieces_win, hide_index=True)
+
+with row_4b:
+    st.subheader('Losing checkmate Pieces')
+    df_checkmate_pieces_lose = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'lose']
+    st.dataframe(df_checkmate_pieces_lose, hide_index=True)
+
+
+# Row 5/6
 move_num = st.slider('1st N moves', min_value=1, max_value=7, value=5)
 st.header(f'Most played starting {move_num} moves')
 
