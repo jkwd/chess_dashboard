@@ -129,18 +129,14 @@ models:
           - name: assert_no_checkmate_valid
   
   - name: prep_game_moves_py
+    description: >
+      This model processes the move by move details of the game.
     config:
       materialized: table
       tags: ['python']
       packages:
         - chess
-
-  - name: prep_game_moves
-    description: >
-      This model is a transformation of the raw player games data.
-    config:
-      pre_hook: "SET TimeZone = 'UTC';"
-    columns:
+      columns:
       - name: id
         tests:
           - unique
@@ -161,3 +157,4 @@ models:
         tests:
           - is_positive_approx:
               threshold: 0.01
+
