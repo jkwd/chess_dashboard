@@ -327,8 +327,9 @@ if 'White' in player_color:
         """).df()
     
     st.subheader('Top 3 Best/Worst opening moves: White')
-    for i, col in enumerate(st.columns(6)):
-        if i < 3:
+    total_white = len(df_winning_opening_white) + len(df_losing_opening_white)
+    for i, col in enumerate(st.columns(total_white)):
+        if i < len(df_winning_opening_white):
             with col:
                 opening = df_winning_opening_white['starting_moves'].iloc[i]
                 perc = df_winning_opening_white['perc'].iloc[i].round(2)
@@ -363,8 +364,8 @@ if 'White' in player_color:
                 
         else:
             with col:
-                opening = df_losing_opening_white['starting_moves'].iloc[3-i]
-                perc = df_losing_opening_white['perc'].iloc[3-i].round(2)
+                opening = df_losing_opening_white['starting_moves'].iloc[len(df_winning_opening_white)-i]
+                perc = df_losing_opening_white['perc'].iloc[len(df_winning_opening_white)-i].round(2)
                 
                 pgn = io.StringIO(opening)
                 game = chess.pgn.read_game(pgn)
@@ -416,8 +417,9 @@ if 'Black' in player_color:
         """).df()
     
     st.subheader('Top 3 Best/Worst opening moves: Black')
-    for i, col in enumerate(st.columns(6)):
-        if i < 3:
+    total_black = len(df_winning_opening_black) + len(df_losing_opening_black)
+    for i, col in enumerate(st.columns(total_black)):
+        if i < len(df_winning_opening_black):
             with col:
                 opening = df_winning_opening_black['starting_moves'].iloc[i]
                 perc = df_winning_opening_black['perc'].iloc[i].round(2)
@@ -450,8 +452,8 @@ if 'Black' in player_color:
                                  )
         else:
             with col:
-                opening = df_losing_opening_black['starting_moves'].iloc[3-i]
-                perc = df_losing_opening_black['perc'].iloc[3-i].round(2) 
+                opening = df_losing_opening_black['starting_moves'].iloc[len(df_winning_opening_black)-i]
+                perc = df_losing_opening_black['perc'].iloc[len(df_winning_opening_black)-i].round(2) 
                 
                 pgn = io.StringIO(opening)
                 game = chess.pgn.read_game(pgn)
