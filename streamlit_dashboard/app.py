@@ -173,6 +173,73 @@ with row_3b:
 
 # Row 4
 row_4a, row_4b = st.columns(2)
+df_dow_hour = conn.sql(f"""
+    set timezone='{selected_timezone}';
+    with base as (
+        select
+        game_start_timestamp::VARCHAR || ' UTC' as game_start_timestamp_utc
+        , game_start_timestamp_utc::TIMESTAMPTZ as ts
+        , player_wdl
+        from df
+    )
+    select
+        hour(ts) as ts_hour
+        , dayofweek(ts) as ts_day_of_week
+        , case ts_day_of_week
+            when 0 then 'Sunday'
+            when 1 then 'Monday'
+            when 2 then 'Tuesday'
+            when 3 then 'Wednesday'
+            when 4 then 'Thursday'
+            when 5 then 'Friday'
+            when 6 then 'Saturday'
+            else 'Unknown'
+        end as ts_day_of_week_name
+        , *
+    from base;
+""").df()
+
+with row_4a:
+    st.subheader('Games by Day of Week')
+    base = alt.Chart(df_dow_hour).encode(
+        alt.X('ts_day_of_week_name', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
+        y="count()",
+    )
+    st.altair_chart(base.mark_bar())
+
+with row_4b:
+    st.subheader('Win rate by Day of Week')
+    base = alt.Chart(df_dow_hour).encode(
+        alt.X('ts_day_of_week_name', 
+              sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        ),
+        alt.Y('count()', stack='normalize'),
+        color='player_wdl'
+    )
+    st.altair_chart(base.mark_bar())
+    
+
+row_5a, row_5b = st.columns(2)
+
+with row_5a:
+    st.subheader('Games by Hour')
+    base = alt.Chart(df_dow_hour).encode(
+        alt.X('ts_hour', bin={"binned": True, "step": 1}),
+        y="count()",
+    )
+    st.altair_chart(base.mark_bar())
+
+with row_5b:
+    st.subheader('Win rate by Hour')
+    base = alt.Chart(df_dow_hour).encode(
+        alt.X('ts_hour', bin={"binned": True, "step": 1}),
+        alt.Y('count()', stack='normalize'),
+        color='player_wdl'
+    )
+    st.altair_chart(base.mark_bar())
+
+
+row_6a, row_6b = st.columns(2)
 df_checkmate_pieces = conn.sql("""
         select
         player_wdl
@@ -184,18 +251,18 @@ df_checkmate_pieces = conn.sql("""
         order by player_wdl, num_games desc;
     """).df()
 
-with row_4a:
+with row_6a:
     st.subheader('Winning checkmate Pieces')
     df_checkmate_pieces_win = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'win']
     st.dataframe(df_checkmate_pieces_win, hide_index=True)
 
-with row_4b:
+with row_6b:
     st.subheader('Losing checkmate Pieces')
     df_checkmate_pieces_lose = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'lose']
     st.dataframe(df_checkmate_pieces_lose, hide_index=True)
 
 
-# Row 5/6
+# Row 7/8
 move_num = st.slider('1st N moves', min_value=1, max_value=7, value=5)
 st.header(f'Most played starting {move_num} moves')
 
