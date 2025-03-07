@@ -239,6 +239,26 @@ with row_5b:
     st.altair_chart(base.mark_bar())
 
 
+st.subheader('Win rate by Day of Week X Hour')
+df_heatmap = conn.sql(f"""
+    select
+    ts_day_of_week_name
+    , ts_hour
+    , 100.0 * count_if(player_wdl = 'win') / count(1) as perc
+    , count(1) as num_games
+    from df_dow_hour
+    group by ts_day_of_week_name, ts_hour
+""").df()
+
+heatmap = alt.Chart(df_heatmap).mark_rect().encode(
+    alt.Y('ts_day_of_week_name', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
+    alt.X('ts_hour', bin={"binned": True, "step": 1}),
+    color='perc',
+    tooltip=['ts_day_of_week_name', 'ts_hour', 'perc', 'num_games']
+)
+st.altair_chart(heatmap, use_container_width=True)
+
+
 row_6a, row_6b = st.columns(2)
 df_checkmate_pieces = conn.sql("""
         select
