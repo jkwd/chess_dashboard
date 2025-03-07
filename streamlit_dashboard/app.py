@@ -1,9 +1,11 @@
 import streamlit as st
+import altair as alt
+
 import pandas as pd
 import duckdb
 import os
 from datetime import timedelta
-import altair as alt
+import pytz
 
 import io
 import chess
@@ -18,10 +20,7 @@ conn = duckdb.connect(database=os.getenv("CHESS_DB"),
 # Title of the dashboard
 st.title(f"Chess Dashboard for {os.getenv('CHESS_USERNAME')}!")
 
-# Filters
-st.subheader('Filters')
-
-filter_1, filter_2 = st.columns(2)
+filter_1, filter_2, filter_3 = st.columns(3)
 with filter_1: 
     df_time_class = conn.sql("""
         SELECT DISTINCT time_class
@@ -42,6 +41,11 @@ with filter_2:
     if player_color == ['All']:
         player_color = ['White', 'Black']
 
+with filter_3:
+    timezones = pytz.all_timezones
+    utc_index = timezones.index("UTC")
+    selected_timezone = st.selectbox("Select a timezone", timezones, index=utc_index)
+
 ts_min, ts_max = conn.sql(f"""
     select min(game_start_date), max(game_start_date)
     from main.games
@@ -50,8 +54,6 @@ ts_min, ts_max = conn.sql(f"""
 """).df().iloc[0]
 ts_min = pd.Timestamp(ts_min).date()
 ts_max = pd.Timestamp(ts_max).date()
-
-st.write(f"Data available from {ts_min} to {ts_max}")
 
 (slider_min, slider_max) = st.slider(
      "Game Date",
