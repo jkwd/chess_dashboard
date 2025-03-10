@@ -77,7 +77,6 @@ jobs:
         run : |
           dbt docs generate --profiles-dir .. --project-dir . --empty-catalog --no-compile
           cd target
-          ls -la
           mkdir ${{ github.workspace }}/docs
           cp *.json *.html ${{ github.workspace }}/docs
           ls -ltra ${{ github.workspace }}/docs 
@@ -87,4 +86,11 @@ jobs:
         with:
           path: ${{ github.workspace }}/docs
     
-    
+      - name: "Zip artifact"
+        run: zip -jrq docs.zip ${{ github.workspace }}/docs
+      
+      - name: "Upload artifact for deployment job"
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs.zip
