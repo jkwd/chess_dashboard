@@ -43,4 +43,29 @@ jobs:
     
     - name: Run dbt unit test
       run: make dbt-unit-test
+    
+  generate-dbt-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            chess_dagster/chess_dbt
+            chess_dagster/profile
       
+      - name: print working directory
+        run: pwd
+      
+      - name: list directory
+        run: ls -l
+      
+      - name: Create .env file
+        run: cp .env.example .env
+      
+      - name: Install dbt
+        run: pip3 install dbt-duckdb==1.9.0
+      
+      - name: Verify dbt
+        run: dbt --version
