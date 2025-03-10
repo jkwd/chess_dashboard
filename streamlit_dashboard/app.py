@@ -74,39 +74,41 @@ query = f"""
 """
 df = conn.sql(query).df()
 
+tab_overview, tab_opening, tab_latest_games = st.tabs(["Overview", "Openings", "Latest Games"])
+
 # Row 1
-row_1a, row_1b, row_1c, row_1d = st.columns(4)
+row_1a, row_1b, row_1c, row_1d = tab_overview.columns(4)
 
-with row_1a:
-    st.subheader('# Games')
-    st.header(df.shape[0])
 
-with row_1b:
-    df_player_wdl = conn.sql("""
-        SELECT 
-        sum(if(player_wdl = 'win', 1, 0)) / count(1) as win_perc
-        FROM df
-    """).df()
-    
-    st.subheader('Win %')
-    st.header(f"{df_player_wdl['win_perc'].iloc[0]:.2%}")
+row_1a.subheader('# Games')
+row_1a.header(df.shape[0])
 
-with row_1c:
-    st.subheader('# Moves Made')
-    st.header(df['player_num_moves'].sum())
 
-with row_1d:
-    st.subheader('Total Move time')
-    if time_class != 'daily':
-        move_time = df['player_total_move_time'].sum()
-        move_time = timedelta(seconds=move_time)
-        move_time = timedelta(days=move_time.days, seconds=move_time.seconds)
-        st.header(str(move_time))
-    else:
-        st.header('NA')
+df_player_wdl = conn.sql("""
+    SELECT 
+    sum(if(player_wdl = 'win', 1, 0)) / count(1) as win_perc
+    FROM df
+""").df()
+
+row_1b.subheader('Win %')
+row_1b.header(f"{df_player_wdl['win_perc'].iloc[0]:.2%}")
+
+
+row_1c.subheader('# Moves Made')
+row_1c.header(df['player_num_moves'].sum())
+
+
+row_1d.subheader('Total Move time')
+if time_class != 'daily':
+    move_time = df['player_total_move_time'].sum()
+    move_time = timedelta(seconds=move_time)
+    move_time = timedelta(days=move_time.days, seconds=move_time.seconds)
+    row_1d.header(str(move_time))
+else:
+    row_1d.header('NA')
 
 # Row 2
-st.subheader('Elo across time')
+tab_overview.subheader('Elo across time')
 df_daily_games = conn.sql("""
     with data as (
         SELECT
@@ -134,45 +136,45 @@ bar = base.mark_bar().encode(
     tooltip=['game_start_date', 'player_rating', 'num_games']
 )
 
-st.altair_chart(bar+line, use_container_width=True)
+tab_overview.altair_chart(bar+line, use_container_width=True)
 
 # Row 3
-row_3a, row_3b = st.columns(2)
+row_3a, row_3b = tab_overview.columns(2)
 
-with row_3a:
-    st.subheader('Win/Draw/Loss')
-    df_wdl = conn.sql("""
-        SELECT 
-        player_wdl
-        , count(1) as num_games
-        , 100.0 * count(1) / sum(count(1)) over() as win_perc
-        FROM df
-        group by player_wdl
-    """).df()
-    st.bar_chart(data=df_wdl, x='player_wdl', y='win_perc')
 
-with row_3b:
-    st.subheader('Win/Draw/Loss with Reason')
-    df_wdl_reason = conn.sql("""
-        SELECT
-        player_wdl
-        , player_wdl_reason
-        , count(1) as num_games
-        , 100.0 * count(1) / sum(count(1)) over() as win_perc
-        FROM df
-        group by player_wdl, player_wdl_reason
-    """).df()
-    
-    bar = alt.Chart(df_wdl_reason).mark_bar().encode(
-        x='player_wdl',
-        y=alt.X('sum(win_perc)').stack("normalize"),
-        color='player_wdl_reason'
-    )
-    st.altair_chart(bar, use_container_width=True)
+row_3a.subheader('Win/Draw/Loss')
+df_wdl = conn.sql("""
+    SELECT 
+    player_wdl
+    , count(1) as num_games
+    , 100.0 * count(1) / sum(count(1)) over() as win_perc
+    FROM df
+    group by player_wdl
+""").df()
+row_3a.bar_chart(data=df_wdl, x='player_wdl', y='win_perc')
+
+
+row_3b.subheader('Win/Draw/Loss with Reason')
+df_wdl_reason = conn.sql("""
+    SELECT
+    player_wdl
+    , player_wdl_reason
+    , count(1) as num_games
+    , 100.0 * count(1) / sum(count(1)) over() as win_perc
+    FROM df
+    group by player_wdl, player_wdl_reason
+""").df()
+
+bar = alt.Chart(df_wdl_reason).mark_bar().encode(
+    x='player_wdl',
+    y=alt.X('sum(win_perc)').stack("normalize"),
+    color='player_wdl_reason'
+)
+row_3b.altair_chart(bar, use_container_width=True)
     
 
 # Row 4
-row_4a, row_4b = st.columns(2)
+row_4a, row_4b = tab_overview.columns(2)
 df_dow_hour = conn.sql(f"""
     set timezone='{selected_timezone}';
     with base as (
@@ -199,47 +201,45 @@ df_dow_hour = conn.sql(f"""
     from base;
 """).df()
 
-with row_4a:
-    st.subheader('Games by Day of Week')
-    base = alt.Chart(df_dow_hour).encode(
-        alt.X('ts_day_of_week_name', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
-        y="count()",
-    )
-    st.altair_chart(base.mark_bar())
 
-with row_4b:
-    st.subheader('Win rate by Day of Week')
-    base = alt.Chart(df_dow_hour).encode(
-        alt.X('ts_day_of_week_name', 
-              sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        ),
-        alt.Y('count()', stack='normalize'),
-        color='player_wdl'
-    )
-    st.altair_chart(base.mark_bar())
-    
-
-row_5a, row_5b = st.columns(2)
-
-with row_5a:
-    st.subheader('Games by Hour')
-    base = alt.Chart(df_dow_hour).encode(
-        alt.X('ts_hour', bin={"binned": True, "step": 1}),
-        y="count()",
-    )
-    st.altair_chart(base.mark_bar())
-
-with row_5b:
-    st.subheader('Win rate by Hour')
-    base = alt.Chart(df_dow_hour).encode(
-        alt.X('ts_hour', bin={"binned": True, "step": 1}),
-        alt.Y('count()', stack='normalize'),
-        color='player_wdl'
-    )
-    st.altair_chart(base.mark_bar())
+row_4a.subheader('Games by Day of Week')
+base = alt.Chart(df_dow_hour).encode(
+    alt.X('ts_day_of_week_name', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
+    y="count()",
+)
+row_4a.altair_chart(base.mark_bar())
 
 
-st.subheader('Win rate by Day of Week X Hour')
+row_4b.subheader('Win rate by Day of Week')
+base = alt.Chart(df_dow_hour).encode(
+    alt.X('ts_day_of_week_name', 
+            sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    ),
+    alt.Y('count()', stack='normalize'),
+    color='player_wdl'
+)
+row_4b.altair_chart(base.mark_bar())
+
+
+row_5a, row_5b = tab_overview.columns(2)
+
+row_5a.subheader('Games by Hour')
+base = alt.Chart(df_dow_hour).encode(
+    alt.X('ts_hour', bin={"binned": True, "step": 1}),
+    y="count()",
+)
+row_5a.altair_chart(base.mark_bar())
+
+row_5b.subheader('Win rate by Hour')
+base = alt.Chart(df_dow_hour).encode(
+    alt.X('ts_hour', bin={"binned": True, "step": 1}),
+    alt.Y('count()', stack='normalize'),
+    color='player_wdl'
+)
+row_5b.altair_chart(base.mark_bar())
+
+
+tab_overview.subheader('Win rate by Day of Week X Hour')
 df_heatmap = conn.sql(f"""
     select
     ts_day_of_week_name
@@ -256,10 +256,10 @@ heatmap = alt.Chart(df_heatmap).mark_rect().encode(
     color='perc',
     tooltip=['ts_day_of_week_name', 'ts_hour', 'perc', 'num_games']
 )
-st.altair_chart(heatmap, use_container_width=True)
+tab_overview.altair_chart(heatmap, use_container_width=True)
 
 
-row_6a, row_6b = st.columns(2)
+row_6a, row_6b = tab_overview.columns(2)
 df_checkmate_pieces = conn.sql("""
         select
         player_wdl
@@ -271,20 +271,19 @@ df_checkmate_pieces = conn.sql("""
         order by player_wdl, num_games desc;
     """).df()
 
-with row_6a:
-    st.subheader('Winning checkmate Pieces')
-    df_checkmate_pieces_win = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'win']
-    st.dataframe(df_checkmate_pieces_win, hide_index=True)
 
-with row_6b:
-    st.subheader('Losing checkmate Pieces')
-    df_checkmate_pieces_lose = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'lose']
-    st.dataframe(df_checkmate_pieces_lose, hide_index=True)
+row_6a.subheader('Winning checkmate Pieces')
+df_checkmate_pieces_win = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'win']
+row_6a.dataframe(df_checkmate_pieces_win, hide_index=True)
+
+row_6b.subheader('Losing checkmate Pieces')
+df_checkmate_pieces_lose = df_checkmate_pieces[df_checkmate_pieces['player_wdl'] == 'lose']
+row_6b.dataframe(df_checkmate_pieces_lose, hide_index=True)
 
 
 # Row 7/8
-move_num = st.slider('1st N moves', min_value=1, max_value=7, value=5)
-st.header(f'Most played starting {move_num} moves')
+move_num = tab_opening.slider('1st N moves', min_value=1, max_value=7, value=5)
+tab_opening.header(f'Most played starting {move_num} moves')
 
 df_starting_moves = conn.sql(f"""
     with cte as (
@@ -326,9 +325,9 @@ if 'White' in player_color:
             qualify lose_order <= 3
         """).df()
     
-    st.subheader('Top 3 Best/Worst opening moves: White')
+    tab_opening.subheader('Top 3 Best/Worst opening moves: White')
     total_white = len(df_winning_opening_white) + len(df_losing_opening_white)
-    for i, col in enumerate(st.columns(total_white)):
+    for i, col in enumerate(tab_opening.columns(total_white)):
         if i < len(df_winning_opening_white):
             with col:
                 opening = df_winning_opening_white['starting_moves'].iloc[i]
@@ -338,9 +337,9 @@ if 'White' in player_color:
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
-                st.write(f'Win {perc}%')
-                st.write(chess.svg.board(board), unsafe_allow_html=True)
-                if st.toggle('List Games', key=f'White_{i}'):
+                col.write(f'Win {perc}%')
+                col.write(chess.svg.board(board), unsafe_allow_html=True)
+                if col.toggle('List Games', key=f'White_{i}'):
                     df_display = conn.sql(f"""
                         select *
                         from (
@@ -354,7 +353,7 @@ if 'White' in player_color:
                         using sample 5 rows;
                     """).df()
 
-                    st.dataframe(df_display, 
+                    col.dataframe(df_display, 
                                  column_config={
                                      'game_analysis_url': st.column_config.LinkColumn(
                                         "URL", display_text="Game URL")
@@ -371,9 +370,9 @@ if 'White' in player_color:
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
-                st.write(f'Lose {perc}%')
-                st.write(chess.svg.board(board), unsafe_allow_html=True)
-                if st.toggle('List Games', key=f'White_{i}'):
+                col.write(f'Lose {perc}%')
+                col.write(chess.svg.board(board), unsafe_allow_html=True)
+                if col.toggle('List Games', key=f'White_{i}'):
                     df_display = conn.sql(f"""
                         select *
                         from (
@@ -387,7 +386,7 @@ if 'White' in player_color:
                         using sample 5 rows;
                     """).df()
 
-                    st.dataframe(df_display, 
+                    col.dataframe(df_display, 
                                  column_config={
                                      'game_analysis_url': st.column_config.LinkColumn(
                                         "URL", display_text="Game URL")
@@ -416,9 +415,9 @@ if 'Black' in player_color:
             qualify lose_order <= 3
         """).df()
     
-    st.subheader('Top 3 Best/Worst opening moves: Black')
+    tab_opening.subheader('Top 3 Best/Worst opening moves: Black')
     total_black = len(df_winning_opening_black) + len(df_losing_opening_black)
-    for i, col in enumerate(st.columns(total_black)):
+    for i, col in enumerate(tab_opening.columns(total_black)):
         if i < len(df_winning_opening_black):
             with col:
                 opening = df_winning_opening_black['starting_moves'].iloc[i]
@@ -428,9 +427,9 @@ if 'Black' in player_color:
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
-                st.write(f'Win {perc}%')
-                st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
-                if st.toggle('List Games', key=f'Black_{i}'):
+                col.write(f'Win {perc}%')
+                col.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
+                if col.toggle('List Games', key=f'Black_{i}'):
                     df_display = conn.sql(f"""
                         select *
                         from (
@@ -444,7 +443,7 @@ if 'Black' in player_color:
                         using sample 5 rows;
                     """).df()
 
-                    st.dataframe(df_display, 
+                    col.dataframe(df_display, 
                                  column_config={
                                      'game_analysis_url': st.column_config.LinkColumn(
                                         "URL", display_text="Game URL")
@@ -459,9 +458,9 @@ if 'Black' in player_color:
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
-                st.write(f'Lose {perc}%')
-                st.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
-                if st.toggle('List Games', key=f'Black_{i}'):
+                col.write(f'Lose {perc}%')
+                col.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
+                if col.toggle('List Games', key=f'Black_{i}'):
                     df_display = conn.sql(f"""
                         select *
                         from (
@@ -475,12 +474,33 @@ if 'Black' in player_color:
                         using sample 5 rows;
                     """).df()
 
-                    st.dataframe(df_display, 
+                    col.dataframe(df_display, 
                                  column_config={
                                      'game_analysis_url': st.column_config.LinkColumn(
                                         "URL", display_text="Game URL")
                                      }
                                  )
+
+
+tab_latest_games.subheader('Latest Games')
+df_latest_games = conn.sql(f"""
+    select
+    player_color
+    , player_wdl
+    , player_wdl_reason
+    , opponent_rating
+    , game_analysis_url
+    from df
+    order by game_start_timestamp desc
+    limit 20;
+""").df()
+
+tab_latest_games.dataframe(df_latest_games, 
+    column_config={
+        'game_analysis_url': st.column_config.LinkColumn(
+        "URL", display_text="Game URL")
+    }
+)
 
 # Close connection
 conn.close()                
