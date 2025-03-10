@@ -76,3 +76,21 @@ jobs:
           CHESS_USERNAME: johnnywhoopp
         run : |
           dbt docs generate --profiles-dir .. --project-dir . --empty-catalog --no-compile
+          cd target
+          mkdir ${{ github.workspace }}/docs
+          cp *.json *.html graph.gpickle ${{ github.workspace }}/docs
+          ls -ltra ${{ github.workspace }}/docs 
+
+      - name: "Upload pages to artifact"
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ${{ github.workspace }}/docs
+    
+      - name: "Zip artifact"
+        run: zip -jrq docs.zip ${{ github.workspace }}/docs
+      
+      - name: "Upload artifact for deployment job"
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: docs.zip
