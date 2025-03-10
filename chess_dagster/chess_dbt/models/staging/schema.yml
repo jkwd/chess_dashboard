@@ -19,7 +19,7 @@ models:
       description: "{{ doc('rated') }}"
     - name: tcn
     - name: game_uuid
-      description: "{{ doc('uuid') }}"
+      description: "{{ doc('game_uuid') }}"
       tests:
         - unique
         - not_null
