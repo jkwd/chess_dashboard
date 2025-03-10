@@ -26,7 +26,7 @@ The overall game accuracy for white calculated by chess.com
 The overall game accuracy for black calculated by chess.com
 {% enddocs %}
 
-{% docs uuid %}
+{% docs game_uuid %}
 The chess game unique id
 {% enddocs %}
 

@@ -25,7 +25,7 @@ sources:
             description: "{{ doc('accuracies__black') }}"
           - name: tcn
           - name: uuid
-            description: "{{ doc('uuid') }}"
+            description: "{{ doc('game_uuid') }}"
           - name: initial_setup
             description: "{{ doc('initial_setup') }}"
           - name: fen
