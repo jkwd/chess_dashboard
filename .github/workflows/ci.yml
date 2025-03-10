@@ -61,12 +61,12 @@ jobs:
         run: cp .env.example .env
       
       - name: Install dbt
-        run: pip3 install dbt-core
+        run: pip3 install dbt-duckdb==1.9.0
       
       - name: Verify dbt
         run: dbt --version
 
       - name: generate dbt docs
-        working-directory: chess_dagster/chess_dbt
+        working-directory: ./chess_dagster/chess_dbt
         run : |
           dbt docs generate --profiles-dir .. --project-dir .
