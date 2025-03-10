@@ -53,12 +53,9 @@ jobs:
       
       - name: print working directory
         run: pwd
-      
+
       - name: list directory
         run: ls -l
-      
-      - name: Create .env file
-        run: cp .env.example .env
       
       - name: Install dbt
         run: pip3 install dbt-duckdb==1.9.0
@@ -69,4 +66,4 @@ jobs:
       - name: generate dbt docs
         working-directory: ./chess_dagster/chess_dbt
         run : |
-          dbt docs generate --profiles-dir .. --project-dir .
+          dbt docs generate --profiles-dir .. --project-dir . --vars '{"CHESS_USERNAME": "johnnywhoopp"}'
