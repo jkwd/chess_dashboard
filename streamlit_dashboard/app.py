@@ -281,7 +281,37 @@ df_checkmate_pieces_lose = df_checkmate_pieces[df_checkmate_pieces['player_wdl']
 row_6b.dataframe(df_checkmate_pieces_lose, hide_index=True)
 
 
-# Row 7/8
+
+row_7a, row_7b = tab_overview.columns(2)
+df_game_phase = conn.sql("""
+    select
+    ended_game_phase
+    , player_wdl
+    , count(1) as num_games
+    , sum(count(1)) over() as total_games
+    from df
+    group by all
+""").df()
+
+row_7a.subheader('Phases the game ended at')
+base = alt.Chart(df_game_phase).encode(
+    alt.X('ended_game_phase', sort=['Opening', 'Midgame', 'Endgame']),
+    y="sum(num_games)",
+)
+row_7a.altair_chart(base.mark_bar())
+
+row_7b.subheader('Win rate by game phase')
+base = alt.Chart(df_game_phase).encode(
+    alt.X('ended_game_phase', 
+            sort=['Opening', 'Midgame', 'Endgame']
+    ),
+    alt.Y('sum(num_games)', stack='normalize'),
+    color='player_wdl'
+)
+row_7b.altair_chart(base.mark_bar())
+
+
+########## Openings ##########
 move_num = tab_opening.slider('1st N moves', min_value=1, max_value=7, value=5)
 tab_opening.header(f'Most played starting {move_num} moves')
 
