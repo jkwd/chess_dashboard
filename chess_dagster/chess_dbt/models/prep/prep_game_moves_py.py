@@ -1,7 +1,6 @@
 import chess.pgn
 from io import StringIO
 import chess
-from chess import pgn
 import re
 import pandas as pd
 import numpy as np

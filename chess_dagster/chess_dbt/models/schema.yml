@@ -9,29 +9,50 @@ sources:
           dagster:
             asset_key: ["dlt_chess_players_games"]
         columns:
-          - name: end_time
           - name: url
+            description: "{{ doc('url') }}"
           - name: pgn
+            description: "{{ doc('pgn') }}"
           - name: time_control
+            description: "{{ doc('time_control') }}"
+          - name: end_time
+            description: "{{ doc('end_time') }}"
           - name: rated
+            description: "{{ doc('rated') }}"
+          - name: accuracies__white
+            description: "{{ doc('accuracies__white') }}"
+          - name: accuracies__black
+            description: "{{ doc('accuracies__black') }}"
           - name: tcn
           - name: uuid
+            description: "{{ doc('uuid') }}"
           - name: initial_setup
+            description: "{{ doc('initial_setup') }}"
           - name: fen
+            description: "{{ doc('fen') }}"
           - name: time_class
+            description: "{{ doc('time_class') }}"
           - name: rules
+            description: "{{ doc('rules') }}"
           - name: white__rating
+            description: "{{ doc('white__rating') }}"
           - name: white__result
+            description: "{{ doc('white__result') }}"
           - name: white__aid
+            description: "{{ doc('white__aid') }}"
           - name: white__username
+            description: "{{ doc('white__username') }}"
           - name: white__uuid
+            description: "{{ doc('white__uuid') }}"
           - name: black__rating
+            description: "{{ doc('black__rating') }}"
           - name: black__result
+            description: "{{ doc('black__result') }}"
           - name: black__aid
+            description: "{{ doc('black__aid') }}"
           - name: black__username
+            description: "{{ doc('black__username') }}"
           - name: black__uuid
-          - name: eco
+            description: "{{ doc('black__uuid') }}"
           - name: _dlt_load_id
           - name: _dlt_id
-          - name: accuracies_white
-          - name: accuracies_black

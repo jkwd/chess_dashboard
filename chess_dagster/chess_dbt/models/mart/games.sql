@@ -1,22 +1,22 @@
 with game_moves_pivot as (
     pivot {{ ref('prep_game_moves_py') }}
     on color_move
-    using sum(move_time_seconds) as total_move_time, count(1) as num_moves
+    using sum(move_time_seconds) as total_move_time, count(*) as num_moves
     group by game_uuid
 )
 
 , game_moves as (
     select
-    game_uuid
-    , game_move_index
-    , game_phase
+        game_uuid
+        , game_move_index
+        , game_phase
     from {{ ref('prep_game_moves_py') }}
 )
 
 , ended_game_phase as (
     select
-    game_uuid
-    , max_by(game_phase, game_move_index) as ended_game_phase
+        game_uuid
+        , max_by(game_phase, game_move_index) as ended_game_phase
     from game_moves
     group by game_uuid
 )
@@ -110,16 +110,15 @@ select
     , player_total_move_time
     , player_num_moves
     , opponent_rating
-    , floor(opponent_rating/100) * 100 as opponent_rating_bin
     , opponent_result
     , opponent_total_move_time
     , opponent_num_moves
     , is_stronger_opponent
     , player_wdl
     , player_wdl_reason
+    , initial_setup
 
     -- BOARD
-    , initial_setup
     , fen
     , pgn
     , pgn_moves
@@ -130,10 +129,11 @@ select
     , eco_name
     , checkmate_pieces
     , ended_game_phase
+    , tcn
 
     -- MISC
-    , tcn
     , accuracies__white
     , accuracies__black
+    , floor(opponent_rating / 100) * 100 as opponent_rating_bin
 
 from final
