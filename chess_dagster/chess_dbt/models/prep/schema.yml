@@ -52,8 +52,8 @@ models:
       - name: _dlt_id
       - name: accuracies__white
         description: "{{ doc('accuracies__white') }}"
-      - name: accuracies_black
-        description: "{{ doc('accuracies_black') }}"
+      - name: accuracies__black
+        description: "{{ doc('accuracies__black') }}"
       - name: time_control_base
         description: "{{ doc('time_control_base') }}"
       - name: time_control_add_seconds
