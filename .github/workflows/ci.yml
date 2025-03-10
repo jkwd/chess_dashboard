@@ -75,4 +75,4 @@ jobs:
         env:
           CHESS_USERNAME: johnnywhoopp
         run : |
-          dbt docs generate --profiles-dir .. --project-dir . --empty-catalog
+          dbt docs generate --profiles-dir .. --project-dir . --empty-catalog --no-compile
