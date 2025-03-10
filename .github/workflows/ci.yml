@@ -50,10 +50,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            chess_dagster/chess_dbt
-            chess_dagster/profile
       
       - name: print working directory
         run: pwd
@@ -69,3 +65,13 @@ jobs:
       
       - name: Verify dbt
         run: dbt --version
+      
+      - name: Make dbt profile directory
+        run: mkdir -p /root/.dbt
+
+      - name: Copy dbt profile
+        run: cp -r ./chess_dagster/profiles.yml /root/.dbt/profiles.yml
+
+      - name: Test connection
+        working-directory: ./chess_dagster/chess_dbt
+        run: dbt debug
