@@ -62,6 +62,13 @@ jobs:
       
       - name: Verify dbt
         run: dbt --version
+      
+      - name: dbt parse
+        working-directory: ./chess_dagster/chess_dbt
+        env:
+          CHESS_USERNAME: johnnywhoopp
+        run : |
+          dbt parse --profiles-dir .. --project-dir .
 
       - name: generate dbt docs
         working-directory: ./chess_dagster/chess_dbt
