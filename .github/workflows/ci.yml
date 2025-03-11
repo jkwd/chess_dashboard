@@ -10,8 +10,6 @@ on:
 jobs:
   run-ci-tests:
     runs-on: ubuntu-latest
-    env:
-      SUPERSET_SECRET_KEY: ${{ secrets.SUPERSET_SECRET_KEY }}
 
     steps:
     - name: Checkout code
@@ -46,6 +44,7 @@ jobs:
     
   generate-dbt-docs:
     runs-on: ubuntu-latest
+    needs: run-ci-tests
 
     steps:
       - name: Checkout code
