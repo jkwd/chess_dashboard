@@ -114,7 +114,7 @@ models:
       tags: ['python']
       packages:
         - chess
-      columns:
+    columns:
       - name: end_time
         description: "{{ doc('end_time') }}"
       - name: url
@@ -213,9 +213,6 @@ models:
         description: "{{ doc('time_played_seconds') }}"
       - name: checkmate_pieces
         description: "{{ doc('checkmate_pieces') }}"
-        tests:
-          - name: assert_checkmate_valid
-          - name: assert_no_checkmate_valid
   
   - name: prep_game_moves_py
     description: >
@@ -225,13 +222,13 @@ models:
       tags: ['python']
       packages:
         - chess
-      columns:
+    columns:
       - name: id
         description: "{{ doc('game_moves_id') }}"
         tests:
           - unique
-      - name: game_mode
-        description: "{{ doc('game_mode') }}"
+      - name: time_class
+        description: "{{ doc('time_class') }}"
       - name: time_control_base
         description: "{{ doc('time_control_base') }}"
       - name: time_control_add_seconds
@@ -282,3 +279,6 @@ models:
           - is_positive_approx:
               threshold: 0.01
 
+tests:
+  - name: assert_checkmate_valid
+  - name: assert_no_checkmate_valid
