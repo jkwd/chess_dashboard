@@ -246,8 +246,30 @@ models:
         description: "{{ doc('color_move_index') }}"
         tests:
           - not_null
-      - name: move
-        description: "{{ doc('move') }}"
+      - name: game_move
+        description: "{{ doc('game_move') }}"
+      - name: pgn_cum_move
+        description: "{{ doc('pgn_cum_move') }}"
+      - name: from_square
+        description: "{{ doc('from_square') }}"
+      - name: to_square
+        description: "{{ doc('to_square') }}"
+      - name: moved_piece
+        description: "{{ doc('moved_piece') }}"
+      - name: forked_pieces
+        description: "{{ doc('forked_pieces') }}"
+      - name: captured_piece
+        description: "{{ doc('captured_piece') }}"
+      - name: major_minor_cnt
+        description: "{{ doc('major_minor_cnt') }}"
+      - name: is_backrank_sparse
+        description: "{{ doc('is_backrank_sparse') }}"
+      - name: is_midgame
+        description: "{{ doc('is_midgame') }}"
+      - name: is_endgame
+        description: "{{ doc('is_endgame') }}"
+      - name: game_phase
+        description: "{{ doc('game_phase') }}"
       - name: prev_clock_interval
         description: "{{ doc('prev_clock_interval') }}"
       - name: clock_interval_move

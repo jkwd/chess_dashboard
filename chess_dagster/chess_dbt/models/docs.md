@@ -35,7 +35,7 @@ The initial chess board pieces setup
 {% enddocs %}
 
 {% docs fen %}
-The pieces final position when the game ended
+The position of the pieces
 {% enddocs %}
 
 {% docs time_class %}
@@ -203,8 +203,52 @@ The player color (white/black) that made the move
 The index that the player color (white/black) that made the move
 {% enddocs %}
 
-{% docs move %}
+{% docs game_move %}
 The move that is made
+{% enddocs %}
+
+{% docs pgn_cum_move %}
+The pgn moves until this game move index
+{% enddocs %}
+
+{% docs from_square %}
+The board index the move started from
+{% enddocs %}
+
+{% docs to_square %}
+The board index the piece was moved to
+{% enddocs %}
+
+{% docs moved_piece %}
+The piece that was moved. Uppercase represents White
+{% enddocs %}
+
+{% docs forked_pieces %}
+The list of pieces being attacked from this move
+{% enddocs %}
+
+{% docs captured_piece %}
+The piece that was captured from the move
+{% enddocs %}
+
+{% docs major_minor_cnt %}
+The number of major and minor pieces on the board after the move is made.
+{% enddocs %}
+
+{% docs is_backrank_sparse %}
+Flag to indicate if the backrank is sparse
+{% enddocs %}
+
+{% docs is_midgame %}
+Flag to indicate if the game has reached middle game
+{% enddocs %}
+
+{% docs is_endgame %}
+Flag to indicate if the game has reached the end game
+{% enddocs %}
+
+{% docs game_phase %}
+Phase the game is at after the move is made
 {% enddocs %}
 
 {% docs prev_clock_interval %}
