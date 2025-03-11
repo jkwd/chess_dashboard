@@ -182,3 +182,7 @@ Duration of the game played
 {% docs time_played_seconds %}
 Duration of the game played in seconds
 {% enddocs %}
+
+{% docs checkmate_pieces %}
+List of pieces used to checkmate
+{% enddocs %}
