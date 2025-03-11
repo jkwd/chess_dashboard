@@ -267,3 +267,43 @@ The clock time indicated after the move is made after the increment is added
 The time taken for the move to be made
 {% enddocs %}
 
+{% docs white_total_move_time %}
+The time taken for white to move in the game
+{% enddocs %}
+
+{% docs white_num_moves %}
+The moves taken for white to move in the game
+{% enddocs %}
+
+{% docs black_total_move_time %}
+The time taken for black to move in the game
+{% enddocs %}
+
+{% docs black_num_moves %}
+The moves taken for black to move in the game
+{% enddocs %}
+
+{% docs player_total_move_time %}
+The time taken for player to move in the game
+{% enddocs %}
+
+{% docs player_num_moves %}
+The moves taken for player to move in the game
+{% enddocs %}
+
+{% docs opponent_total_move_time %}
+The time taken for opponent to move in the game
+{% enddocs %}
+
+{% docs opponent_num_moves %}
+The moves taken for opponent to move in the game
+{% enddocs %}
+
+{% docs ended_game_phase %}
+Phase in which the game ended
+{% enddocs %}
+
+{% docs game_mode %}
+The time class and the time control
+{% enddocs %}
+
