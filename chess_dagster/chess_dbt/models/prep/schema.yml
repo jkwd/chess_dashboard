@@ -227,22 +227,35 @@ models:
         - chess
       columns:
       - name: id
+        description: "{{ doc('game_moves_id') }}"
         tests:
           - unique
       - name: game_mode
+        description: "{{ doc('game_mode') }}"
       - name: time_control_base
+        description: "{{ doc('time_control_base') }}"
       - name: time_control_add_seconds
-      - name: uuid
+        description: "{{ doc('time_control_add_seconds') }}"
+      - name: game_uuid
+        description: "{{ doc('game_uuid') }}"
       - name: game_move_index
+        description: "{{ doc('game_move_index') }}"
       - name: color_move
+        description: "{{ doc('color_move') }}"
       - name: color_move_index
+        description: "{{ doc('color_move_index') }}"
         tests:
           - not_null
       - name: move
+        description: "{{ doc('move') }}"
       - name: prev_clock_interval
+        description: "{{ doc('prev_clock_interval') }}"
       - name: clock_interval_move
+        description: "{{ doc('clock_interval_move') }}"
       - name: clock_interval_post_move
+        description: "{{ doc('clock_interval_post_move') }}"
       - name: move_time_seconds
+        description: "{{ doc('move_time_seconds') }}"
         tests:
           - is_positive_approx:
               threshold: 0.01

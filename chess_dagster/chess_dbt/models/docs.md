@@ -186,3 +186,40 @@ Duration of the game played in seconds
 {% docs checkmate_pieces %}
 List of pieces used to checkmate
 {% enddocs %}
+
+{% docs game_moves_id %}
+ID of the game move, a combination of game uuid and the game move index.
+{% enddocs %}
+
+{% docs game_move_index %}
+The move index of a given game
+{% enddocs %}
+
+{% docs color_move %}
+The player color (white/black) that made the move
+{% enddocs %}
+
+{% docs color_move_index %}
+The index that the player color (white/black) that made the move
+{% enddocs %}
+
+{% docs move %}
+The move that is made
+{% enddocs %}
+
+{% docs prev_clock_interval %}
+The clock time indicated before the move was made
+{% enddocs %}
+
+{% docs clock_interval_move %}
+The clock time indicated after the move is made before the increment
+{% enddocs %}
+
+{% docs clock_interval_post_move %}
+The clock time indicated after the move is made after the increment is added
+{% enddocs %}
+
+{% docs move_time_seconds %}
+The time taken for the move to be made
+{% enddocs %}
+
