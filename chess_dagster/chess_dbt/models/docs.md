@@ -95,6 +95,10 @@ In chess time control there is a base time and an increment time. For example, 1
 In chess time control there is a base time and an increment time. For example, 15|10 indicates a base of 15 mins and increment of 10 seconds per move. This column captures the incremental time in seconds.
 {% enddocs %}
 
+{% docs pgn_header %}
+PGN details without the move set
+{% enddocs %}
+
 {% docs pgn_moves %}
 The string of the move sequence in the entire PGN. This contains the move and the system clock timing of the move
 {% enddocs %}

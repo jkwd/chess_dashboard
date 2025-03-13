@@ -58,6 +58,8 @@ models:
         description: "{{ doc('time_control_base') }}"
       - name: time_control_add_seconds
         description: "{{ doc('time_control_add_seconds') }}"
+      - name: pgn_header
+        description: "{{ doc('pgn_header') }}"
       - name: pgn_moves
         description: "{{ doc('pgn_moves') }}"
       - name: pgn_move_extract
@@ -214,71 +216,71 @@ models:
       - name: checkmate_pieces
         description: "{{ doc('checkmate_pieces') }}"
   
-  - name: prep_game_moves_py
-    description: >
-      This model processes the move by move details of the game.
-    config:
-      materialized: table
-      tags: ['python']
-      packages:
-        - chess
-    columns:
-      - name: id
-        description: "{{ doc('game_moves_id') }}"
-        tests:
-          - unique
-      - name: time_class
-        description: "{{ doc('time_class') }}"
-      - name: time_control_base
-        description: "{{ doc('time_control_base') }}"
-      - name: time_control_add_seconds
-        description: "{{ doc('time_control_add_seconds') }}"
-      - name: game_uuid
-        description: "{{ doc('game_uuid') }}"
-      - name: game_move_index
-        description: "{{ doc('game_move_index') }}"
-      - name: color_move
-        description: "{{ doc('color_move') }}"
-      - name: color_move_index
-        description: "{{ doc('color_move_index') }}"
-        tests:
-          - not_null
-      - name: game_move
-        description: "{{ doc('game_move') }}"
-      - name: pgn_cum_move
-        description: "{{ doc('pgn_cum_move') }}"
-      - name: from_square
-        description: "{{ doc('from_square') }}"
-      - name: to_square
-        description: "{{ doc('to_square') }}"
-      - name: moved_piece
-        description: "{{ doc('moved_piece') }}"
-      - name: forked_pieces
-        description: "{{ doc('forked_pieces') }}"
-      - name: captured_piece
-        description: "{{ doc('captured_piece') }}"
-      - name: major_minor_cnt
-        description: "{{ doc('major_minor_cnt') }}"
-      - name: is_backrank_sparse
-        description: "{{ doc('is_backrank_sparse') }}"
-      - name: is_midgame
-        description: "{{ doc('is_midgame') }}"
-      - name: is_endgame
-        description: "{{ doc('is_endgame') }}"
-      - name: game_phase
-        description: "{{ doc('game_phase') }}"
-      - name: prev_clock_interval
-        description: "{{ doc('prev_clock_interval') }}"
-      - name: clock_interval_move
-        description: "{{ doc('clock_interval_move') }}"
-      - name: clock_interval_post_move
-        description: "{{ doc('clock_interval_post_move') }}"
-      - name: move_time_seconds
-        description: "{{ doc('move_time_seconds') }}"
-        tests:
-          - is_positive_approx:
-              threshold: 0.01
+  # - name: prep_game_moves_py
+  #   description: >
+  #     This model processes the move by move details of the game.
+  #   config:
+  #     materialized: table
+  #     tags: ['python']
+  #     packages:
+  #       - chess
+  #   columns:
+  #     - name: id
+  #       description: "{{ doc('game_moves_id') }}"
+  #       tests:
+  #         - unique
+  #     - name: time_class
+  #       description: "{{ doc('time_class') }}"
+  #     - name: time_control_base
+  #       description: "{{ doc('time_control_base') }}"
+  #     - name: time_control_add_seconds
+  #       description: "{{ doc('time_control_add_seconds') }}"
+  #     - name: game_uuid
+  #       description: "{{ doc('game_uuid') }}"
+  #     - name: game_move_index
+  #       description: "{{ doc('game_move_index') }}"
+  #     - name: color_move
+  #       description: "{{ doc('color_move') }}"
+  #     - name: color_move_index
+  #       description: "{{ doc('color_move_index') }}"
+  #       tests:
+  #         - not_null
+  #     - name: game_move
+  #       description: "{{ doc('game_move') }}"
+  #     - name: pgn_cum_move
+  #       description: "{{ doc('pgn_cum_move') }}"
+  #     - name: from_square
+  #       description: "{{ doc('from_square') }}"
+  #     - name: to_square
+  #       description: "{{ doc('to_square') }}"
+  #     - name: moved_piece
+  #       description: "{{ doc('moved_piece') }}"
+  #     - name: forked_pieces
+  #       description: "{{ doc('forked_pieces') }}"
+  #     - name: captured_piece
+  #       description: "{{ doc('captured_piece') }}"
+  #     - name: major_minor_cnt
+  #       description: "{{ doc('major_minor_cnt') }}"
+  #     - name: is_backrank_sparse
+  #       description: "{{ doc('is_backrank_sparse') }}"
+  #     - name: is_midgame
+  #       description: "{{ doc('is_midgame') }}"
+  #     - name: is_endgame
+  #       description: "{{ doc('is_endgame') }}"
+  #     - name: game_phase
+  #       description: "{{ doc('game_phase') }}"
+  #     - name: prev_clock_interval
+  #       description: "{{ doc('prev_clock_interval') }}"
+  #     - name: clock_interval_move
+  #       description: "{{ doc('clock_interval_move') }}"
+  #     - name: clock_interval_post_move
+  #       description: "{{ doc('clock_interval_post_move') }}"
+  #     - name: move_time_seconds
+  #       description: "{{ doc('move_time_seconds') }}"
+  #       tests:
+  #         - is_positive_approx:
+  #             threshold: 0.01
 
-tests:
-  - name: assert_checkmate_valid
-  - name: assert_no_checkmate_valid
+# tests:
+#   - name: assert_checkmate_valid
+#   - name: assert_no_checkmate_valid

@@ -52,6 +52,7 @@ with player_games as (
             as player_wdl_reason
 
         -- PGN details
+        , regexp_split_to_array(pgn, '\n\n')[1] as pgn_header
         , regexp_split_to_array(pgn, '\n\n')[2] as pgn_moves
         , regexp_extract_all(pgn_moves, '\d+\.+ [\S]+') as pgn_move_extract
         , regexp_extract_all(pgn_moves, '{\[%clk \S+\]}') as pgn_clock_extract
