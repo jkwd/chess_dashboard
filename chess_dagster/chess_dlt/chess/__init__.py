@@ -40,7 +40,7 @@ def source(
         players_archives, players_games, players_online_status
     """
     return (
-        players_profiles(username),
+        # players_profiles(username),
         players_games(username),
     )
 
