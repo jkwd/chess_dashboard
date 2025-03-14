@@ -23,7 +23,7 @@ make up
 
 Go to [http://localhost:3000](http://localhost:3000) to view the Dagster UI.
 
-Go to [http://localhost:8088/](http://localhost:8088/) to view the Apache Superset UI.
+Go to [http://localhost:8501/](http://localhost:8501/) to view the Streamlit Dashboard
 
 ## Running Dagster Job
 TODO
@@ -34,7 +34,7 @@ The data engineering project stack contains the following:
 2. [Dagster](https://dagster.io/): To schedule and orchestrate the DAGs
 3. [Postgres](https://www.postgresql.org/): To store and persist Dagster details
 4. [DuckDB](https://duckdb.org/): Data Warehouse
-5. [Apache Superset](https://superset.apache.org/): Dashboard Layer
+5. [Streamlit](https://streamlit.io/): Dashboard Layer
 
 ## Architecture Diagram
 TODO
