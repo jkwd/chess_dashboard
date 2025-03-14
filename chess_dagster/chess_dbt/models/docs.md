@@ -239,6 +239,14 @@ The piece that was captured from the move
 The number of major and minor pieces on the board after the move is made.
 {% enddocs %}
 
+{% docs black_major_minor %}
+The number of major and minor pieces on the board after the move is made for black
+{% enddocs %}
+
+{% docs white_major_minor %}
+The number of major and minor pieces on the board after the move is made for white
+{% enddocs %}
+
 {% docs is_backrank_sparse %}
 Flag to indicate if the backrank is sparse
 {% enddocs %}

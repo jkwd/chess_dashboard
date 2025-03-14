@@ -95,6 +95,8 @@ models:
               values: ['win', 'draw', 'lose']
       - name: player_wdl_reason
         description: "{{ doc('player_wdl_reason') }}"
+        tests:
+        - not_null
       - name: game_start_date
         description: "{{ doc('game_start_date') }}"
       - name: game_start_time
@@ -110,3 +112,57 @@ models:
       - name: time_played_seconds
         description: "{{ doc('time_played_seconds') }}"
   
+  - name: prep_game_moves
+    description: >
+      This model is a transformation of the raw game moves data from PGN details
+    config:
+      pre_hook: "SET TimeZone = 'UTC';"
+    columns:
+      - name: game_moves_id
+        description: "{{ doc('game_moves_id') }}"
+      - name: game_uuid
+        description: "{{ doc('game_uuid') }}"
+      - name: time_class
+        description: "{{ doc('time_class') }}"
+      - name: time_control_base
+        description: "{{ doc('time_control_base') }}"
+      - name: time_control_add_seconds
+        description: "{{ doc('time_control_add_seconds') }}"
+      - name: game_move_index
+        description: "{{ doc('game_move_index') }}"
+      - name: pgn_header
+        description: "{{ doc('pgn_header') }}"
+      - name: pgn_cum_move
+        description: "{{ doc('pgn_cum_move') }}"
+      - name: color_move
+        description: "{{ doc('color_move') }}"
+      - name: color_move_index
+        description: "{{ doc('color_move_index') }}"
+      - name: game_move
+        description: "{{ doc('game_move') }}"
+      - name: captured_piece
+        description: "{{ doc('captured_piece') }}"
+      - name: clock_interval_move
+        description: "{{ doc('clock_interval_move') }}"
+      - name: clock_interval_post_move
+        description: "{{ doc('clock_interval_post_move') }}"
+      - name: prev_clock_interval
+        description: "{{ doc('prev_clock_interval') }}"
+      - name: move_time_seconds
+        description: "{{ doc('move_time_seconds') }}"
+      - name: fen
+        description: "{{ doc('fen') }}"
+      - name: major_minor_cnt
+        description: "{{ doc('major_minor_cnt') }}"
+      - name: black_major_minor
+        description: "{{ doc('black_major_minor') }}"
+      - name: white_major_minor
+        description: "{{ doc('white_major_minor') }}"
+      - name: is_backrank_sparse
+        description: "{{ doc('is_backrank_sparse') }}"
+      - name: is_midgame
+        description: "{{ doc('is_midgame') }}"
+      - name: is_endgame
+        description: "{{ doc('is_endgame') }}"
+      - name: game_phase
+        description: "{{ doc('game_phase') }}"
