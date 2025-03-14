@@ -324,6 +324,7 @@ df_starting_moves = conn.sql(f"""
         , count(1) as wdl_num_games
         , sum(count(1)) over(partition by player_color, starting_moves) as num_games
         FROM df
+        where len(pgn_move_extract) > 0
         group by player_color, player_wdl, starting_moves
     )
     select
@@ -515,7 +516,9 @@ if 'Black' in player_color:
 tab_latest_games.subheader('Latest Games')
 df_latest_games = conn.sql(f"""
     select
-    player_color
+    white__username
+    , black__username
+    , player_color
     , player_wdl
     , player_wdl_reason
     , opponent_rating
