@@ -1,4 +1,4 @@
-from chess_dbt.models.prep.prep_player_games_checkmate import get_checkmate_pieces
+from chess_dbt.lib.my_custom_functions import get_checkmate_pieces_udf
 
 
 def test_get_checkmate_pieces_1():
@@ -7,7 +7,7 @@ def test_get_checkmate_pieces_1():
     player_result = 'win'
     opponent_result = 'checkmated'
     expected_result = ['king', 'pawn', 'rook', 'rook']
-    result = get_checkmate_pieces(fen=fen,
+    result = get_checkmate_pieces_udf(fen=fen,
                                   player_color=player_color,
                                   player_result=player_result,
                                   opponent_result=opponent_result)
