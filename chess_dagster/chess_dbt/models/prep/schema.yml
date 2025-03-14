@@ -120,6 +120,9 @@ models:
     columns:
       - name: game_moves_id
         description: "{{ doc('game_moves_id') }}"
+        tests:
+          - unique
+          - not_null
       - name: game_uuid
         description: "{{ doc('game_uuid') }}"
       - name: time_class
@@ -166,3 +169,7 @@ models:
         description: "{{ doc('is_endgame') }}"
       - name: game_phase
         description: "{{ doc('game_phase') }}"
+
+tests:
+  - name: assert_checkmate_valid
+  - name: assert_no_checkmate_valid

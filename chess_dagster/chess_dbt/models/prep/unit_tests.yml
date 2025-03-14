@@ -1,0 +1,11 @@
+unit_tests:
+  - name: unit_test_prep_game_moves
+    description: "Check if moves are correctly parsed"
+    model: prep_game_moves
+    given:
+      - input: ref('prep_player_games')
+        format: sql
+        fixture: prep_game_moves_sql_input
+    expect:
+      format: csv
+      fixture: prep_game_moves_expect
