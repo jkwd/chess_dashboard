@@ -80,6 +80,10 @@ with player_games as (
         , end_time::timestamp as game_end_timestamp
         , age(game_end_timestamp, game_start_timestamp) as time_played_interval
         , epoch(time_played_interval) as time_played_seconds
+
+        , get_checkmate_pieces_udf(fen, player_color, player_result, opponent_result) as checkmate_pieces
+    
+    
     from player_games
 )
 

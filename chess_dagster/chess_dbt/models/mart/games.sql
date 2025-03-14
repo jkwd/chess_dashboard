@@ -10,7 +10,7 @@ with game_moves_pivot as (
         game_uuid
         , game_move_index
         , game_phase
-    from {{ ref('prep_game_moves_board') }}
+    from {{ ref('prep_game_moves') }}
 )
 
 , ended_game_phase as (
@@ -23,7 +23,7 @@ with game_moves_pivot as (
 
 , player_games as (
     select *
-    from {{ ref('prep_player_games_checkmate') }}
+    from {{ ref('prep_player_games') }}
 )
 
 , joined as (
