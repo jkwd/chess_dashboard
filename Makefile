@@ -1,5 +1,5 @@
 init:
-	cp .env.example .env_1
+	cp .env.example .env
 
 build:
 	docker compose -f docker-compose.yml -f docker-compose-dashboard.yml build --no-cache
