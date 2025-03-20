@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.osx": {
+        "DBT_PROFILES_DIR": "${env:VSCODE_CWD}/chess_dagster",
+        "DBT_PROJECT_DIR": "${env:VSCODE_CWD}/chess_dagster/chess_dbt"
+    }
+}
