@@ -2,7 +2,8 @@
   - [Architecture](#architecture)
   - [Architecture Diagram](#architecture-diagram)
   - [Run locally](#run-locally)
-  - [Running Dagster Job (Step 8)](#running-dagster-job-step-8)
+  - [Github Codespaces](#github-codespaces)
+- [Running Dagster Job](#running-dagster-job)
 
 # Chess Dashboard
 ## Architecture
@@ -31,10 +32,24 @@ Clone the repo, create a `.env` file and run the following commands to start the
 4. Edit the `CHESS_USERNAME` in the `.env` file to your username
 5. `make up`
 6. Go to [http://localhost:3000](http://localhost:3000) to view the Dagster UI
-7. [Materialize all assets](#running-dagster-job-step-8)
+7. [Materialize all assets](#running-dagster-job)
 8. Go to [http://localhost:8501/](http://localhost:8501/) to view the Streamlit Dashboard
 
-## Running Dagster Job (Step 8)
+## Github Codespaces
+1. Fork/Clone `https://github.com/jkwd/chess_dashboard.git` to your own Repository
+2. Open in Codespaces
+3. `Make init`
+4. Edit the `CHESS_USERNAME` in the `.env` file to your username
+5. `make up`
+6. Find the forwarded addresses in `PORTS` section of the Code Editor
+![](img/codespaces_ports.png)
+7. Go to Forwarded address for port `3000` to view the Dagster UI
+8. [Materialize all assets](#running-dagster-job)
+9. Go to Forwarded address for port `8501` to view the Streamlit Dashboard
+10. Stop/Delete Codespaces when you are done
+
+
+# Running Dagster Job
 1. Click on Assets Tab on the top
 2. Click on View global asset ineage at the top right of the page
 ![](img/dagster_assets.png)
