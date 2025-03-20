@@ -27,9 +27,9 @@ Clone the repo, create a `.env` file and run the following commands to start the
 
 1. `git clone https://github.com/jkwd/chess_dashboard.git`
 2. `cd chess_dashboard`
-3. cp .env.example .env
+3. `make init`
 4. Edit the `CHESS_USERNAME` in the `.env` file to your username
-5. make up
+5. `make up`
 6. Go to [http://localhost:3000](http://localhost:3000) to view the Dagster UI
 7. [Materialize all assets](#running-dagster-job-step-8)
 8. Go to [http://localhost:8501/](http://localhost:8501/) to view the Streamlit Dashboard
