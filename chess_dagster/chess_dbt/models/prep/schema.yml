@@ -118,7 +118,7 @@ models:
     config:
       pre_hook: "SET TimeZone = 'UTC';"
     columns:
-      - name: game_moves_id
+      - name: id
         description: "{{ doc('game_moves_id') }}"
         tests:
           - unique

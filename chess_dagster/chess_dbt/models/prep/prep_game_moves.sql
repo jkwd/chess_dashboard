@@ -80,8 +80,12 @@ with prep_player_games as (
             )
         ) as prev_clock_interval
 
-        , if(time_class = 'daily', 0, prev_clock_interval - clock_interval_move)
-            as move_time_seconds
+        , round(
+            if(
+                time_class = 'daily', 0, prev_clock_interval - clock_interval_move
+            )
+            , 1
+        ) as move_time_seconds
         , split(fen, ' ')[1] as fen_board
         , len(regexp_extract_all(split(fen_board, ' ')[1], '[rnbqRNBQ]')) as major_minor_cnt
         , len(regexp_extract_all(split(fen_board, '/')[1], '[rnbq]')) as black_major_minor
