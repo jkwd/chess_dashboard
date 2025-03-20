@@ -28,9 +28,9 @@ Clone the repo, create a `.env` file and run the following commands to start the
 
 1. `git clone https://github.com/jkwd/chess_dashboard.git`
 2. `cd chess_dashboard`
-3. `make init`
+3. `make init` to create an `.env` file
 4. Edit the `CHESS_USERNAME` in the `.env` file to your username
-5. `make up`
+5. `make up` to build and start the docker container
 6. Go to [http://localhost:3000](http://localhost:3000) to view the Dagster UI
 7. [Materialize all assets](#running-dagster-job)
 8. Go to [http://localhost:8501/](http://localhost:8501/) to view the Streamlit Dashboard
@@ -38,9 +38,9 @@ Clone the repo, create a `.env` file and run the following commands to start the
 ## Github Codespaces
 1. Fork/Clone `https://github.com/jkwd/chess_dashboard.git` to your own Repository
 2. Open in Codespaces
-3. `Make init`
+3. `Make init` to create an `.env` file
 4. Edit the `CHESS_USERNAME` in the `.env` file to your username
-5. `make up`
+5. `make up` to build and start the docker container
 6. Find the forwarded addresses in `PORTS` section of the Code Editor
 ![](img/codespaces_ports.png)
 7. Go to Forwarded address for port `3000` to view the Dagster UI
