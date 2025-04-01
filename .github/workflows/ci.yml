@@ -42,7 +42,7 @@ jobs:
     - name: Run dbt unit test
       run: make dbt-unit-test
     
-    - name: Run dbt unit test
+    - name: Run e2e
       run: make run
     
   generate-dbt-docs:
