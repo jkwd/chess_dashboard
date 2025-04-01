@@ -70,14 +70,14 @@ jobs:
         env:
           CHESS_USERNAME: johnnywhoopp
         run : |
-          dbt parse --profiles-dir .. --project-dir . --target prod
+          dbt parse --profiles-dir .. --project-dir . --target ci
 
       - name: generate dbt docs
         working-directory: ./chess_dagster/chess_dbt
         env:
           CHESS_USERNAME: johnnywhoopp
         run : |
-          dbt docs generate --profiles-dir .. --project-dir . --empty-catalog --no-compile --target prod
+          dbt docs generate --profiles-dir .. --project-dir . --empty-catalog --no-compile --target ci
           cd target
           mkdir ${{ github.workspace }}/docs
           cp *.json *.html ${{ github.workspace }}/docs

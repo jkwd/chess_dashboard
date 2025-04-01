@@ -11,6 +11,17 @@ chess_dbt:
         # Custom module in the lib directory that defines SQL UDFs written in Python at the start of
         # the dbt run
         - module: my_custom_functions
+    ci:
+      type: duckdb
+      path: ../../data/chess.duckdb
+      threads: 1
+      module_paths:
+        - "./chess_dagster/chess_dbt/lib"
+      plugins:
+        # Custom module in the lib directory that defines SQL UDFs written in Python at the start of
+        # the dbt run
+        - module: my_custom_functions
+    
     prod:
       type: duckdb
       path: "{{ env_var('CHESS_DB') }}"
