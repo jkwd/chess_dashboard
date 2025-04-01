@@ -1,7 +1,9 @@
-# workspace.yaml
-
-# load_from:
-#   - python_module: chess_etl.definitions
+# https://github.com/dagster-io/dagster/blob/master/examples/deploy_docker/workspace.yaml
 
 load_from:
-  - python_file: "./chess_etl/definitions.py"
+  # Each entry here corresponds to a service in the docker-compose file that exposes user code.
+  # location_name in pyproject.toml [tool.dagster]
+  - grpc_server:
+      host: chess_dagster_user_code
+      port: 4000
+      location_name: "chess_etl"

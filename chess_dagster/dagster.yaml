@@ -1,3 +1,5 @@
+# https://github.com/dagster-io/dagster/blob/master/examples/deploy_docker/dagster.yaml
+
 run_storage:
   module: dagster_postgres.run_storage
   class: PostgresRunStorage
@@ -12,6 +14,24 @@ run_storage:
       db_name:
         env: POSTGRES_DB
       port: 5432
+
+# run_launcher:
+#   module: dagster_docker
+#   class: DockerRunLauncher
+#   config:
+#     env_vars: # Pass in environment variables to the launched containers
+#       - POSTGRES_HOST
+#       - POSTGRES_USER
+#       - POSTGRES_PASSWORD
+#       - POSTGRES_DB
+#       - CHESS_USERNAME
+#       - CHESS_DB
+#       - DAGSTER_DBT_PARSE_PROJECT_ON_LOAD
+#     network: chess_network
+#     container_kwargs:
+#       volumes: # Make docker client accessible to any launched containers as well
+#         - /var/run/docker.sock:/var/run/docker.sock
+#         - /tmp/io_manager_storage:/tmp/io_manager_storage
 
 schedule_storage:
   module: dagster_postgres.schedule_storage

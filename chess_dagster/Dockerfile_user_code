@@ -1,0 +1,38 @@
+# https://github.com/dagster-io/dagster/blob/master/examples/deploy_docker/Dockerfile_user_code
+
+FROM python:3.10-slim
+
+ENV PYTHONUNBUFFERED=1
+
+# Download stockfish
+# RUN apt-get update && apt-get install --no-install-recommends --assume-yes stockfish
+
+# Create directory for dbt profile
+RUN mkdir -p /root/.dbt
+
+# Copy dbt profile
+COPY profiles.yml /root/.dbt/profiles.yml
+
+# Add data dir
+RUN mkdir -p /data
+
+# ENV Var
+ENV DAGSTER_HOME=/opt/dagster/dagster_home/
+ENV DAGSTER_APP=/opt/dagster/app
+
+# Add dagster yaml
+RUN mkdir -p $DAGSTER_HOME
+COPY dagster.yaml workspace.yaml $DAGSTER_HOME
+
+# Add repo code
+WORKDIR $DAGSTER_APP
+COPY . .
+
+# Install dependencies
+RUN pip install .[dev]
+
+# Run dagster gRPC server on port 4000
+EXPOSE 4000
+
+# Start the dagster webserver
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "chess_etl/definitions.py"]

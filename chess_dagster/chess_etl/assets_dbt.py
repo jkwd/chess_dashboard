@@ -6,4 +6,4 @@ from chess_etl.resources import dbt_manifest_path
 
 @dbt_assets(manifest=dbt_manifest_path)
 def chess_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    yield from dbt.cli(["build"], context=context).stream()
+    yield from dbt.cli(["build", "--target", "prod"], context=context).stream()

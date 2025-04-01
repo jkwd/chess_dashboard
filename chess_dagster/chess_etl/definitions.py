@@ -8,8 +8,10 @@ from chess_etl.assets_dbt import chess_dbt_assets
 from chess_etl.resources import dlt_resource, dbt_resource
 
 
+all_assets_job = define_asset_job(name="all_assets_job")
+
 daily_refresh_schedule = ScheduleDefinition(
-    job=define_asset_job(name="all_assets_job"), cron_schedule="0 0 * * *"
+    job=all_assets_job, cron_schedule="0 0 * * *"
 )
 
 # Must be last
@@ -20,4 +22,5 @@ defs = Definitions(
         "dbt": dbt_resource,
     },
     schedules=[daily_refresh_schedule],
+    jobs=[all_assets_job]
 )

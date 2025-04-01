@@ -1,3 +1,5 @@
+# https://github.com/dagster-io/dagster/blob/master/examples/deploy_docker/docker-compose.yml
+
 services:
   chess_dagster_postgres:
     image: postgres:11
@@ -9,42 +11,79 @@ services:
       POSTGRES_USER: "postgres_user"
       POSTGRES_PASSWORD: "postgres_password"
       POSTGRES_DB: "postgres_db"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d postgres_db"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
     volumes:
       - ./data/dagster-postgres:/var/lib/postgresql/data
+    networks:
+      - chess_network
 
-  chess_dagster_webserver:
+  chess_dagster_user_code:
     build:
       context: ./chess_dagster
-      dockerfile: Dockerfile
-    container_name: chess_dagster_webserver
+      dockerfile: Dockerfile_user_code
+    container_name: chess_dagster_user_code
+    image: chess_dagster_user_code_image
     depends_on:
       - chess_dagster_postgres
     restart: always
+    environment:
+      POSTGRES_HOST: "chess_dagster_postgres"
+      POSTGRES_USER: "postgres_user"
+      POSTGRES_PASSWORD: "postgres_password"
+      POSTGRES_DB: "postgres_db"
+      DAGSTER_CURRENT_IMAGE: "chess_dagster_user_code_image"
+    env_file: .env
+    volumes:
+      - ./chess_dagster:/opt/dagster/app
+      - ./data:/data
+    networks:
+      - chess_network
+  
+  chess_dagster_webserver:
+    build:
+      context: ./chess_dagster
+      dockerfile: Dockerfile_dagster
+    container_name: chess_dagster_webserver
+    depends_on:
+      - chess_dagster_postgres
+      - chess_dagster_user_code
+    restart: always
     ports:
       - "3000:3000"
-      - "8888:8888"
     expose:
       - "3000"
-      - "8888"
     environment:
       POSTGRES_HOST: "chess_dagster_postgres"
       POSTGRES_USER: "postgres_user"
       POSTGRES_PASSWORD: "postgres_password"
       POSTGRES_DB: "postgres_db"
     env_file: .env
-    volumes:
-      - ./chess_dagster:/opt/dagster/app
-      - ./data:/data
+    volumes: # Make docker client accessible so we can terminate containers from the webserver
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+    entrypoint:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "3000"
+      - -w
+      - workspace.yaml
+    networks:
+      - chess_network
   
   chess_dagster_daemon:
     build:
       context: ./chess_dagster
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dagster
     container_name: chess_dagster_daemon
     depends_on:
       - chess_dagster_postgres
+      - chess_dagster_user_code
     restart: always
     environment:
       POSTGRES_HOST: "chess_dagster_postgres"
@@ -52,9 +91,17 @@ services:
       POSTGRES_PASSWORD: "postgres_password"
       POSTGRES_DB: "postgres_db"
     env_file: .env
-    volumes:
-      - ./chess_dagster:/opt/dagster/app
-      - ./data:/data
+    volumes: # Make docker client accessible so we can terminate containers from the webserver
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
-    command: "dagster-daemon run"
+      - ./data:/data
+    entrypoint:
+      - dagster-daemon
+      - run
+    networks:
+      - chess_network
+
+networks:
+  chess_network:
+    driver: bridge
+    name: chess_network
