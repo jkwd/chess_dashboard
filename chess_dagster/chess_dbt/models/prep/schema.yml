@@ -20,6 +20,9 @@ models:
       - name: tcn
       - name: game_uuid
         description: "{{ doc('game_uuid') }}"
+        tests:
+          - not_null
+          - unique
       - name: initial_setup
         description: "{{ doc('initial_setup') }}"
       - name: fen
@@ -56,20 +59,34 @@ models:
         description: "{{ doc('accuracies__black') }}"
       - name: time_control_base
         description: "{{ doc('time_control_base') }}"
+        tests:
+          - not_null
       - name: time_control_add_seconds
         description: "{{ doc('time_control_add_seconds') }}"
+        tests:
+          - not_null
       - name: pgn_header
         description: "{{ doc('pgn_header') }}"
       - name: pgn_moves
         description: "{{ doc('pgn_moves') }}"
+        tests:
+          - not_null
       - name: pgn_move_extract
         description: "{{ doc('pgn_move_extract') }}"
+        tests:
+          - not_null
       - name: pgn_clock_extract
         description: "{{ doc('pgn_clock_extract') }}"
+        tests:
+          - not_null
       - name: pgn_move_extract_string
         description: "{{ doc('pgn_move_extract_string') }}"
+        tests:
+          - not_null
       - name: game_analysis_url
         description: "{{ doc('game_analysis_url') }}"
+        tests:
+          - not_null
       - name: eco
         description: "{{ doc('eco') }}"
       - name: eco_url
@@ -78,10 +95,14 @@ models:
         description: "{{ doc('eco_name') }}"
       - name: player_color
         description: "{{ doc('player_color') }}"
+        tests:
+          - not_null
       - name: player_rating
         description: "{{ doc('player_rating') }}"
       - name: player_result
         description: "{{ doc('player_result') }}"
+        tests:
+          - not_null
       - name: opponent_rating
         description: "{{ doc('opponent_rating') }}"
       - name: opponent_result
@@ -121,10 +142,12 @@ models:
       - name: id
         description: "{{ doc('game_moves_id') }}"
         tests:
-          - unique
           - not_null
+          - unique
       - name: game_uuid
         description: "{{ doc('game_uuid') }}"
+        tests:
+          - not_null
       - name: time_class
         description: "{{ doc('time_class') }}"
       - name: time_control_base
@@ -155,6 +178,8 @@ models:
         description: "{{ doc('move_time_seconds') }}"
       - name: fen
         description: "{{ doc('fen') }}"
+        tests:
+          - not_null
       - name: major_minor_cnt
         description: "{{ doc('major_minor_cnt') }}"
       - name: black_major_minor
@@ -169,6 +194,8 @@ models:
         description: "{{ doc('is_endgame') }}"
       - name: game_phase
         description: "{{ doc('game_phase') }}"
+        tests:
+          - not_null
 
 tests:
   - name: assert_checkmate_valid

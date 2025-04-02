@@ -7,6 +7,9 @@ models:
     columns:
       - name: game_uuid
         description: "{{ doc('game_uuid') }}"
+        tests:
+          - not_null
+          - unique
       - name: url
         description: "{{ doc('url') }}"
       - name: rated
@@ -21,6 +24,8 @@ models:
         description: "{{ doc('game_analysis_url') }}"
       - name: time_control
         description: "{{ doc('time_control') }}"
+        tests:
+          - not_null
       - name: time_control_base
         description: "{{ doc('time_control_base') }}"
       - name: time_control_add_seconds
