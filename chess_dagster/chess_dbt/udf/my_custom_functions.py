@@ -10,7 +10,16 @@ import chess
 from collections import Counter
 import re
 
-def pgn_to_fens_udf(pgn) -> list[str]:
+def pgn_to_fens_udf(pgn: str) -> list[str]:
+    """Takes in a PGN and go move by move to get the FEN of the board at each move.
+    Returns a list of fen strings.
+
+    Args:
+        pgn (str): pgn of the game
+
+    Returns:
+        arr (list[str]): fen strings of the board at each move
+    """
     pgn_header = pgn.split('\n\n')[0]
     pgn_moves = pgn.split('\n\n')[1]
     if 'Chess960' not in pgn_header:
@@ -40,7 +49,20 @@ def pgn_to_fens_udf(pgn) -> list[str]:
 
     return arr
 
-def get_checkmate_pieces_udf(fen, player_color, player_result, opponent_result) -> list[str]:
+def get_checkmate_pieces_udf(fen: str, player_color: str, player_result: str, opponent_result: str) -> list[str]:
+    """Takes in the board position fen and the result of the game to determine the pieces that are used for checkmate.
+
+    Args:
+        fen (str): The board position
+        player_color (str): The color of the player (White/Black)
+        player_result (str): The result of the player (Win/Lose)
+        opponent_result (str): The result of the opponent (Win/Lose)
+
+    Returns:
+        list[str]: List of pieces that were used to checkmate
+    """
+    
+    # If the game is not checkmated, return empty list 
     if not (player_result == 'checkmated' or opponent_result == 'checkmated'):
         return []
 
@@ -49,6 +71,7 @@ def get_checkmate_pieces_udf(fen, player_color, player_result, opponent_result) 
     if not board.is_checkmate():
         return []
 
+    # Determine the winning and checkmated color
     if player_color == 'White':
         if player_result == 'win':
             winning_color = chess.WHITE
@@ -89,10 +112,22 @@ def get_checkmate_pieces_udf(fen, player_color, player_result, opponent_result) 
 
     return sorted([chess.piece_name(board.piece_at(attacker).piece_type) for attacker in attacking_pieces])
 
-def get_captured_piece_udf(prev_fen, fen) -> str | None:
+def get_captured_piece_udf(prev_fen: str, fen: str) -> str | None:
+    """Gets the piece that was captured in the move.
+
+    Args:
+        prev_fen (_type_): The position of the board before the move
+        fen (_type_): The position of the board after the move
+
+    Returns:
+        str | None: The piece that was captured if any
+    """
+    
+    # Start of the game
     if prev_fen == "":
         return None
     
+    # Get all pieces from the board previously and currently
     prev_fen = prev_fen.split(' ')[0]
     fen = fen.split(' ')[0]
     prev_pieces = re.findall(r'[prnbqRNBQP]', prev_fen)
