@@ -1,4 +1,4 @@
-from chess_dbt.lib.my_custom_functions import get_checkmate_pieces_udf, pgn_to_fens_udf
+from chess_dbt.udf.my_custom_functions import get_checkmate_pieces_udf, pgn_to_fens_udf
 
 
 def test_get_checkmate_pieces_1():

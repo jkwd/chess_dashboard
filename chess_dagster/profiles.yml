@@ -6,7 +6,7 @@ chess_dbt:
       path: ./data/chess.duckdb
       threads: 1
       module_paths:
-        - "./chess_dagster/chess_dbt/lib"
+        - "./chess_dagster/chess_dbt/udf"
       plugins:
         # Custom module in the lib directory that defines SQL UDFs written in Python at the start of
         # the dbt run
@@ -16,7 +16,7 @@ chess_dbt:
       path: ../../data/chess.duckdb
       threads: 1
       module_paths:
-        - "./chess_dagster/chess_dbt/lib"
+        - "./chess_dagster/chess_dbt/udf"
       plugins:
         # Custom module in the lib directory that defines SQL UDFs written in Python at the start of
         # the dbt run
@@ -27,7 +27,7 @@ chess_dbt:
       path: "{{ env_var('CHESS_DB') }}"
       threads: 1
       module_paths:
-        - "{{ env_var('DAGSTER_APP') }}/chess_dbt/lib"
+        - "{{ env_var('DAGSTER_APP') }}/chess_dbt/udf"
       plugins:
         # Custom module in the lib directory that defines SQL UDFs written in Python at the start of
         # the dbt run
