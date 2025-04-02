@@ -35,4 +35,7 @@ RUN pip install .[dev]
 EXPOSE 4000
 
 # Start the dagster webserver
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "chess_etl/definitions.py"]
+# dagster api grpc does not support dynamic code changes - requires restarting the container
+# Use dagster code-server start to allow dynamic code changes when Reloding Definitions
+# CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "chess_etl/definitions.py"]
+CMD ["dagster", "code-server", "start", "-h", "0.0.0.0", "-p", "4000", "-f", "chess_etl/definitions.py"]
