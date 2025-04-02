@@ -116,8 +116,8 @@ def get_captured_piece_udf(prev_fen: str, fen: str) -> str | None:
     """Gets the piece that was captured in the move.
 
     Args:
-        prev_fen (_type_): The position of the board before the move
-        fen (_type_): The position of the board after the move
+        prev_fen (str): The position of the board before the move
+        fen (str): The position of the board after the move
 
     Returns:
         str | None: The piece that was captured if any
