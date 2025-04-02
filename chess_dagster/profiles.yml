@@ -3,10 +3,10 @@ chess_dbt:
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('VSCODE_CWD') }}{{ env_var('CHESS_DB') }}"
+      path: ./data/chess.duckdb
       threads: 4
       module_paths:
-        - "{{ env_var('VSCODE_CWD') }}/chess_dagster/chess_dbt/lib"
+        - "./chess_dagster/chess_dbt/lib"
       plugins:
         # Custom module in the lib directory that defines SQL UDFs written in Python at the start of
         # the dbt run
