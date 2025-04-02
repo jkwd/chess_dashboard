@@ -11,6 +11,11 @@ from collections import Counter
 import re
 
 def pgn_to_fens_udf(pgn) -> list[str]:
+    pgn_header = pgn.split('\n\n')[0]
+    pgn_moves = pgn.split('\n\n')[1]
+    if 'Chess960' not in pgn_header:
+        pgn = pgn_moves
+    
     arr = []
     game = chess.pgn.read_game(StringIO(pgn)).game()
     board = game.board()
