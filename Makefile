@@ -29,7 +29,7 @@ dbt-unit-test:
 	docker compose run --rm chess_dagster_user_code bash -c "cd chess_dbt && dbt docs generate --target prod && dbt test --target prod --select test_type:unit"
 
 run: up
-	docker compose exec chess_dagster_user_code bash -c "dagster job execute -f chess_etl/definitions.py -j all_assets_job"
+	docker compose exec chess_dagster_user_code bash -c "sleep 5 && dagster job execute -f chess_etl/definitions.py -j all_assets_job"
 
 clean:
 	docker image rm chess_dashboard-chess_dagster_webserver
