@@ -20,7 +20,9 @@ logger.addHandler(handler)
 
 @dlt.source(name="chess")
 def source(username: str):
-    return player_games(username=username)
+    return (
+        player_games(username=username)
+    )
 
 @dlt.resource(write_disposition="replace", columns=PlayersGames)
 def player_games(username: str) -> Generator[Any, Any, Any]:
@@ -32,10 +34,29 @@ def player_games(username: str) -> Generator[Any, Any, Any]:
         Generator[Any, Any, Any]: A generator that return a list of games for a player.
     """
     
+    def _get_player_archives(username: str) -> List:
+        """
+        Returns url to game archives for a specified player username.
+        Args:
+            username: str: Player username to retrieve archives for.
+        Yields:
+            List: List of player archive data.
+        """
+
+        data = requests.get(f"https://api.chess.com/pub/player/{username}/games/archives")
+        return data.json().get("archives", [])
+    
     # get archives in parallel by decorating the http request with defer
     @dlt.defer
-    def _get_archive(url: str):
-        logger.warning(f"Getting archive from {url}")
+    def _get_games(url: str) -> List[Dict[str, Any]]:
+        """
+        Returns games of the specified player username from the given archive url.
+        Args:
+            url: str: URL to the archive to retrieve games from in the format https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+        Yields:
+            List: List of player's games data.
+        """
+        logger.info(f"Getting games from {url}")
         try:
             games = requests.get(url).json().get("games", [])
             return games  # type: ignore
@@ -49,24 +70,10 @@ def player_games(username: str) -> Generator[Any, Any, Any]:
             logger.error(f"Unexpected error: {err}")
             raise
     
-    archives = player_archives(username)
     
+    archives = _get_player_archives(username)
     for url in archives:
         # the `url` format is https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
         
         # get the filtered archive
-        yield _get_archive(url)
-        
-
-@dlt.resource()
-def player_archives(username: str) -> Generator[List[Dict[str, Any]], Any, Any]:
-    """
-    Yields url to game archives for a specified player username.
-    Args:
-        username: str: Player username to retrieve archives for.
-    Yields:
-        Generator[List[Dict[str, Any]], Any, Any]: List of player archive data.
-    """
-
-    data = requests.get(f"https://api.chess.com/pub/player/{username}/games/archives")
-    yield data.json().get("archives", [])
+        yield _get_games(url)
