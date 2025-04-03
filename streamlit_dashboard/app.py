@@ -34,7 +34,7 @@ while not is_db_init:
         if db_not_init_msg_cnt == 0:
             placeholder.error("Database is not initialised. Go to Dagster at port 3000 to trigger Job")
             db_not_init_msg_cnt += 1
-        time.sleep(5)
+        time.sleep(30)
 
 try:
     filter_1, filter_2, filter_3 = st.columns(3)
