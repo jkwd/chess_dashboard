@@ -17,6 +17,8 @@ st.set_page_config(layout="wide")
 # Title of the dashboard
 st.title(f"Chess Dashboard for {os.getenv('CHESS_USERNAME')}!")
 
+placeholder = st.empty()
+
 # Connect to the database
 is_db_init = False
 db_not_init_msg_cnt = 0
@@ -26,9 +28,11 @@ while not is_db_init:
                                 read_only=True)
 
         is_db_init = True
+        placeholder.empty()
+        
     except duckdb.duckdb.IOException as e:
         if db_not_init_msg_cnt == 0:
-            st.text("Database is not initialised. Go to Dagster at port 3000 to trigger Job")
+            placeholder.error("Database is not initialised. Go to Dagster at port 3000 to trigger Job")
             db_not_init_msg_cnt += 1
         time.sleep(5)
 
