@@ -1,2 +1,7 @@
+# put your configuration values here
+
+# use the dlthub_telemetry setting to enable/disable anonymous usage data reporting, see https://dlthub.com/docs/reference/telemetry
+dlthub_telemetry = false
+
 [normalize.data_writer]
 timestamp_timezone=""

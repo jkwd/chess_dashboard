@@ -4,10 +4,10 @@ sources:
   - name: chess_source
     schema: chess_data_raw
     tables:
-      - name: players_games
+      - name: player_games
         meta:
           dagster:
-            asset_key: ["dlt_chess_players_games"]
+            asset_key: ["dlt_chess_player_games"]
         columns:
           - name: url
             description: "{{ doc('url') }}"
