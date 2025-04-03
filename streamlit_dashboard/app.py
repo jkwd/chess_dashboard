@@ -363,11 +363,13 @@ if 'White' in player_color:
             with col:
                 opening = df_winning_opening_white['starting_moves'].iloc[i]
                 perc = df_winning_opening_white['perc'].iloc[i].round(2)
+                num_games = df_winning_opening_white['num_games'].iloc[i]
                 
                 pgn = io.StringIO(opening)
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
+                col.write(f'{int(num_games)} games')
                 col.write(f'Win {perc}%')
                 col.write(chess.svg.board(board), unsafe_allow_html=True)
                 if col.toggle('List Games', key=f'White_{i}'):
@@ -379,6 +381,7 @@ if 'White' in player_color:
                             from df
                             where player_color = 'White'
                             and player_wdl = 'win'
+                            and len(pgn_move_extract) > 0
                             and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
                         )
                         using sample 5 rows;
@@ -390,17 +393,18 @@ if 'White' in player_color:
                                         "URL", display_text="Game URL")
                                      }
                                  )
-                    
-                
         else:
             with col:
-                opening = df_losing_opening_white['starting_moves'].iloc[len(df_winning_opening_white)-i]
-                perc = df_losing_opening_white['perc'].iloc[len(df_winning_opening_white)-i].round(2)
+                idx = len(df_winning_opening_white)-i
+                opening = df_losing_opening_white['starting_moves'].iloc[idx]
+                perc = df_losing_opening_white['perc'].iloc[idx].round(2)
+                num_games = df_losing_opening_white['num_games'].iloc[idx]
                 
                 pgn = io.StringIO(opening)
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
+                col.write(f'{int(num_games)} games')
                 col.write(f'Lose {perc}%')
                 col.write(chess.svg.board(board), unsafe_allow_html=True)
                 if col.toggle('List Games', key=f'White_{i}'):
@@ -412,6 +416,7 @@ if 'White' in player_color:
                             from df
                             where player_color = 'White'
                             and player_wdl = 'lose'
+                            and len(pgn_move_extract) > 0
                             and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
                         )
                         using sample 5 rows;
@@ -453,11 +458,13 @@ if 'Black' in player_color:
             with col:
                 opening = df_winning_opening_black['starting_moves'].iloc[i]
                 perc = df_winning_opening_black['perc'].iloc[i].round(2)
+                num_games = df_winning_opening_black['num_games'].iloc[i]
                 
                 pgn = io.StringIO(opening)
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
+                col.write(f'{int(num_games)} games')
                 col.write(f'Win {perc}%')
                 col.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
                 if col.toggle('List Games', key=f'Black_{i}'):
@@ -469,6 +476,7 @@ if 'Black' in player_color:
                             from df
                             where player_color = 'Black'
                             and player_wdl = 'win'
+                            and len(pgn_move_extract) > 0
                             and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
                         )
                         using sample 5 rows;
@@ -482,13 +490,16 @@ if 'Black' in player_color:
                                  )
         else:
             with col:
-                opening = df_losing_opening_black['starting_moves'].iloc[len(df_winning_opening_black)-i]
-                perc = df_losing_opening_black['perc'].iloc[len(df_winning_opening_black)-i].round(2) 
+                idx = len(df_winning_opening_black)-i
+                opening = df_losing_opening_black['starting_moves'].iloc[idx]
+                perc = df_losing_opening_black['perc'].iloc[idx].round(2)
+                num_games = df_losing_opening_black['num_games'].iloc[idx]
                 
                 pgn = io.StringIO(opening)
                 game = chess.pgn.read_game(pgn)
                 board = game.end().board()
                 
+                col.write(f'{num_games} games')
                 col.write(f'Lose {perc}%')
                 col.write(chess.svg.board(board, orientation=chess.BLACK), unsafe_allow_html=True)
                 if col.toggle('List Games', key=f'Black_{i}'):
@@ -500,6 +511,7 @@ if 'Black' in player_color:
                             from df
                             where player_color = 'Black'
                             and player_wdl = 'lose'
+                            and len(pgn_move_extract) > 0
                             and list_reduce(pgn_move_extract[1:{move_num}], (s, x) -> s || ' ' || x) = '{opening}'
                         )
                         using sample 5 rows;
