@@ -11,15 +11,14 @@ from chess_dlt import source
 
 @dlt_assets(
     dlt_source=source(
-        # username='magnuscarlsen'
         username=os.getenv("CHESS_USERNAME")
     ),
     dlt_pipeline=pipeline(
         pipeline_name="chess_pipeline",
         destination=destinations.duckdb(os.getenv('CHESS_DB')),
-        dataset_name=SCHEMA_RAW,
+        dataset_name=SCHEMA_RAW, # This is the table schema in duckdb.
     ),
-    name="chess",
+    name="chess", # This is the table catalog in duckdb.
 )
 def chess_dlt_assets(context: AssetExecutionContext, dlt: DagsterDltResource):
     yield from dlt.run(context=context)
