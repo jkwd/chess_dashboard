@@ -22,7 +22,7 @@ if os.getenv("DAGSTER_DBT_PARSE_PROJECT_ON_LOAD"):
             ["--quiet", "parse"],
             target_path=Path("target"),
         )
-        .wait()
+        .wait() # wait for the parse command to finish as dbt_resource.cli() creates a subprocess
         .target_path.joinpath("manifest.json")
     )
 else:
