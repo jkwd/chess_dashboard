@@ -40,7 +40,7 @@ models:
       tests:
         - not_null
         - accepted_values:
-              values: ['chess', 'chess960', 'bughouse', 'kingofthehill', 'threecheck', 'crazyhouse']
+              values: ['chess', 'chess960', 'bughouse', 'kingofthehill', 'threecheck', 'crazyhouse', 'oddschess']
     - name: white__rating
       description: "{{ doc('white__rating') }}"
     - name: white__result

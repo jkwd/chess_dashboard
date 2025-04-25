@@ -22,7 +22,7 @@ def pgn_to_fens_udf(pgn: str) -> list[str]:
     """
     pgn_header = pgn.split('\n\n')[0]
     pgn_moves = pgn.split('\n\n')[1]
-    if 'Chess960' not in pgn_header:
+    if 'Chess960' not in pgn_header and 'Odds Chess' not in pgn_header:
         pgn = pgn_moves
     
     arr = []
