@@ -37,7 +37,15 @@ while not is_db_init:
         time.sleep(30)
 
 try:
-    filter_1, filter_2, filter_3 = st.columns(3)
+    filter_0, filter_1, filter_2, filter_3 = st.columns(4)
+    with filter_0:
+        df_rules = conn.sql("""
+            SELECT DISTINCT rules
+            FROM main.games
+            order by rules
+        """).df()
+        rules = st.selectbox('Rules', df_rules, index=0)
+    
     with filter_1: 
         df_time_class = conn.sql("""
             SELECT DISTINCT time_class
@@ -85,7 +93,8 @@ try:
     query = f"""
         SELECT *
         FROM main.games
-        WHERE time_class = '{time_class}'
+        WHERE rules = '{rules}'
+        AND time_class = '{time_class}'
         AND player_color in ({', '.join([f"'{color}'" for color in player_color])})
         AND game_start_date between '{slider_min}' and '{slider_max}'
     """
