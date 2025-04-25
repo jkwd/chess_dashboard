@@ -103,7 +103,7 @@ try:
     tab_overview, tab_opening, tab_latest_games = st.tabs(["Overview", "Openings", "Latest Games"])
 
     # Row 1
-    row_1a, row_1b, row_1c, row_1d = tab_overview.columns(4)
+    row_1a, row_1b, row_1c, row_1d, row_1e = tab_overview.columns(5)
 
 
     row_1a.subheader('# Games')
@@ -118,20 +118,23 @@ try:
 
     row_1b.subheader('Win %')
     row_1b.header(f"{df_player_wdl['win_perc'].iloc[0]:.2%}")
+    
+    row_1c.subheader('Highest Elo')
+    row_1c.header(df['player_rating'].max())
 
 
-    row_1c.subheader('# Moves Made')
-    row_1c.header(df['player_num_moves'].sum())
+    row_1d.subheader('# Moves Made')
+    row_1d.header(df['player_num_moves'].sum())
 
 
-    row_1d.subheader('Total Move time')
+    row_1e.subheader('Total Move time')
     if time_class != 'daily':
         move_time = df['player_total_move_time'].sum()
         move_time = timedelta(seconds=move_time)
         move_time = timedelta(days=move_time.days, seconds=move_time.seconds)
-        row_1d.header(str(move_time))
+        row_1e.header(str(move_time))
     else:
-        row_1d.header('NA')
+        row_1e.header('NA')
 
     # Row 2
     tab_overview.subheader('Elo across time')
