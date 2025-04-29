@@ -1,8 +1,13 @@
 # https://github.com/dagster-io/dagster/blob/master/examples/deploy_docker/Dockerfile_user_code
+# https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+FROM python:3.10-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-FROM python:3.10-slim
-
+# ENV var
 ENV PYTHONUNBUFFERED=1
+ENV DAGSTER_HOME=/opt/dagster/dagster_home/
+ENV DAGSTER_APP=/opt/dagster/app
+ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 
 # Download stockfish
 # RUN apt-get update && apt-get install --no-install-recommends --assume-yes stockfish
@@ -16,10 +21,6 @@ COPY profiles.yml /root/.dbt/profiles.yml
 # Add data dir
 RUN mkdir -p /data
 
-# ENV Var
-ENV DAGSTER_HOME=/opt/dagster/dagster_home/
-ENV DAGSTER_APP=/opt/dagster/app
-
 # Add dagster yaml
 RUN mkdir -p $DAGSTER_HOME
 COPY dagster.yaml workspace.yaml $DAGSTER_HOME
@@ -29,7 +30,7 @@ WORKDIR $DAGSTER_APP
 COPY . .
 
 # Install dependencies
-RUN pip install .[dev]
+RUN uv sync
 
 # Run dagster gRPC server on port 4000
 EXPOSE 4000
