@@ -30,7 +30,7 @@ WORKDIR $DAGSTER_APP
 COPY . .
 
 # Install dependencies
-RUN uv sync
+RUN uv sync --extra dev
 
 # Run dagster gRPC server on port 4000
 EXPOSE 4000
