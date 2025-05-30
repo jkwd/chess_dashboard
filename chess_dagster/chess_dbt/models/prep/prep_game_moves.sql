@@ -4,6 +4,7 @@ with prep_player_games as (
         , time_class
         , time_control_base
         , time_control_add_seconds
+        , player_color
         , pgn
         , pgn_header
         , pgn_move_extract
@@ -116,6 +117,7 @@ select
     , time_class
     , time_control_base
     , time_control_add_seconds
+    , player_color
 
     -- Move details
     , game_move_index

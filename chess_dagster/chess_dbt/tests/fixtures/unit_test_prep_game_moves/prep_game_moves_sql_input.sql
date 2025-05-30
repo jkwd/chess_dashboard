@@ -3,6 +3,7 @@ select
     , 'rapid' as time_class
     , 1500 as time_control_base
     , 25 as time_control_add_seconds
+    , 'White' as player_color
     , cast(
         '[Event "Live Chess"]
         [Site "Chess.com"]
