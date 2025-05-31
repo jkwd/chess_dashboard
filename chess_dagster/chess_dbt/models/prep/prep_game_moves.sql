@@ -11,12 +11,14 @@ with prep_player_games as (
         , pgn_clock_extract
     from {{ ref('prep_player_games') }}
 )
+
 , fens_data as (
     select
         *
         , get_move_details_udf(pgn) as move_details
     from prep_player_games
 )
+
 , unnest as (
     select
         *
@@ -36,10 +38,12 @@ with prep_player_games as (
 )
 
 , additional_prep as (
-    select 
+    select
         *
-        , row_number() over (partition by game_uuid, color_move order by game_move_index) as color_move_index
-        
+        , row_number() over (
+            partition by game_uuid, color_move order by game_move_index
+        ) as color_move_index
+
         -- To get the clock before the addition of time
         , clock_interval_post_move - time_control_add_seconds as clock_interval_move
     from unnest
@@ -55,16 +59,17 @@ with prep_player_games as (
         , time_control_add_seconds
 
         -- Move details
-        , case
-            when color_move = 'White' then concat(color_move_index::varchar, '. ', game_move)
-            else concat(color_move_index::varchar, '... ', game_move)
-        end as pgn_move
         , game_move_index
         , pgn_header
         , color_move
         , color_move_index
         , game_move
         , game_uuid || '_' || game_move_index as id
+        , case
+            when color_move = 'White'
+                then concat(cast(color_move_index as varchar), '. ', game_move)
+            else concat(cast(color_move_index as varchar), '... ', game_move)
+        end as pgn_move
 
         -- Clock details
         , string_agg(pgn_move, ' ')
