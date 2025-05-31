@@ -26,3 +26,6 @@ select
     , _dlt_id::string as _dlt_id
 
 from {{ source('chess_source', 'player_games') }}
+
+-- Reduce scope
+where rules = 'chess'
