@@ -1,5 +1,6 @@
 select
     'b5d3f880-3fe6-11df-8000-000000010001' as game_uuid
+    , 'chess' as rules
     , 'rapid' as time_class
     , 1500 as time_control_base
     , 25 as time_control_add_seconds

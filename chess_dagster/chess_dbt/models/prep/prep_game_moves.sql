@@ -1,6 +1,7 @@
 with prep_player_games as (
     select
         game_uuid
+        , rules
         , time_class
         , time_control_base
         , time_control_add_seconds
@@ -114,6 +115,7 @@ select
 -- Game details
     id
     , game_uuid
+    , rules
     , time_class
     , time_control_base
     , time_control_add_seconds

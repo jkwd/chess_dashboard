@@ -148,6 +148,8 @@ models:
         description: "{{ doc('game_uuid') }}"
         tests:
           - not_null
+      - name: rules
+        description: "{{ doc('rules') }}"
       - name: time_class
         description: "{{ doc('time_class') }}"
       - name: time_control_base
