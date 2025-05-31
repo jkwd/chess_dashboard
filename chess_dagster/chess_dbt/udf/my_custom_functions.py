@@ -7,8 +7,52 @@ import chess.pgn
 from io import StringIO
 import chess
 
+from typing import Any
 from collections import Counter
 import re
+
+def get_move_details_udf(pgn: str) -> list[dict[str, str]]:
+    """Takes in a PGN and go move by move to get the FEN of the board at each move.
+    Returns a list of fen strings.
+
+    Args:
+        pgn (str): pgn of the game
+
+    Returns:
+        arr (list[str]): fen strings of the board at each move
+    """
+    try:
+        pgn_header = pgn.split('\n\n')[0]
+        pgn_moves = pgn.split('\n\n')[1]
+        if 'FEN' not in pgn_header and 'Chess960' not in pgn_header and 'Odds Chess' not in pgn_header:
+            pgn = pgn_moves
+        
+        arr = []
+        game = chess.pgn.read_game(StringIO(pgn)).game()
+        board = game.board()
+        
+        for move in game.mainline_moves():
+            san = board.san(move)
+            board.push(move)
+            fen = board.fen()
+            from_square = move.from_square
+            to_square = move.to_square
+            moved_piece = board.piece_at(to_square).symbol()
+            color_move = board.piece_at(to_square).color
+            x = {
+                'move_from_to': move.uci(),
+                'san': san,
+                'from_square': from_square,
+                'to_square': to_square,
+                'moved_piece': moved_piece,
+                'color_move': 'White' if color_move else 'Black',
+                'fen': fen
+            }
+            arr.append(x)
+    except Exception as e:
+        raise e
+    return arr
+
 
 def pgn_to_fens_udf(pgn: str) -> list[str]:
     """Takes in a PGN and go move by move to get the FEN of the board at each move.
@@ -20,33 +64,36 @@ def pgn_to_fens_udf(pgn: str) -> list[str]:
     Returns:
         arr (list[str]): fen strings of the board at each move
     """
-    pgn_header = pgn.split('\n\n')[0]
-    pgn_moves = pgn.split('\n\n')[1]
-    if 'Chess960' not in pgn_header and 'Odds Chess' not in pgn_header:
-        pgn = pgn_moves
-    
-    arr = []
-    game = chess.pgn.read_game(StringIO(pgn)).game()
-    board = game.board()
-    
-    for move in game.mainline_moves():
-        board.push(move)
-        fen = board.fen()
-        # from_square = move.from_square
-        # to_square = move.to_square
-        # moved_piece = board.piece_at(to_square).symbol()
-        # color_move = board.piece_at(to_square).color
-        # x = {
-        #     'move_from_to': move.uci(),
-        #     'from_square': from_square,
-        #     'to_square': to_square,
-        #     'moved_piece': moved_piece,
-        #     'color_move': 'White' if color_move else 'Black',
-        #     'fen': fen
-        # }
-        # arr.append(x)
-        arr.append(fen)
-
+    try:
+        pgn_header = pgn.split('\n\n')[0]
+        pgn_moves = pgn.split('\n\n')[1]
+        if 'FEN' not in pgn_header and 'Chess960' not in pgn_header and 'Odds Chess' not in pgn_header:
+            pgn = pgn_moves
+        
+        arr = []
+        game = chess.pgn.read_game(StringIO(pgn)).game()
+        board = game.board()
+        
+        for move in game.mainline_moves():
+            board.push(move)
+            fen = board.fen()
+            # from_square = move.from_square
+            # to_square = move.to_square
+            # moved_piece = board.piece_at(to_square).symbol()
+            # color_move = board.piece_at(to_square).color
+            # x = {
+            #     'move_from_to': move.uci(),
+            #     'from_square': from_square,
+            #     'to_square': to_square,
+            #     'moved_piece': moved_piece,
+            #     'color_move': 'White' if color_move else 'Black',
+            #     'fen': fen
+            # }
+            # arr.append(x)
+            arr.append(fen)
+    except Exception as e:
+        print(f"Error processing PGN: {e}")
+        return []
     return arr
 
 def get_checkmate_pieces_udf(fen: str, player_color: str, player_result: str, opponent_result: str) -> list[str]:
@@ -150,5 +197,6 @@ def get_captured_piece_udf(prev_fen: str, fen: str) -> str | None:
 class Plugin(BasePlugin):
     def configure_connection(self, conn: DuckDBPyConnection):
         conn.create_function("pgn_to_fens_udf", pgn_to_fens_udf)
+        conn.create_function("get_move_details_udf", get_move_details_udf)
         conn.create_function("get_checkmate_pieces_udf", get_checkmate_pieces_udf)
         conn.create_function("get_captured_piece_udf", get_captured_piece_udf, null_handling = 'special')
