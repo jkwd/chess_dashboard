@@ -154,6 +154,8 @@ models:
         description: "{{ doc('time_control_base') }}"
       - name: time_control_add_seconds
         description: "{{ doc('time_control_add_seconds') }}"
+      - name: player_color
+        description: "{{ doc('player_color') }}"
       - name: game_move_index
         description: "{{ doc('game_move_index') }}"
       - name: pgn_header
